@@ -4,13 +4,13 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '1',
+				version: '1.1',
 				name: 'Show MangaDex Cover Data',
 				description:
 					'Display cover sizes and descriptions on MangaDex. Descriptions are shown on hover (if they exist).',
 			},
 			del_covers_by_lang: {
-				version: '1',
+				version: '1.1',
 				name: 'Delete MangaDex Covers by Language',
 				description:
 					'Requires the title edit and cover delete permissions. Removes all covers in a given language from the title edit page.',

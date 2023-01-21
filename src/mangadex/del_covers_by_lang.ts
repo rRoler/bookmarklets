@@ -17,6 +17,7 @@ function bookmarklet(): void {
 		if (
 			deleteLanguage
 				.toLowerCase()
+				.replaceAll(' ', '')
 				.includes(
 					(language as HTMLDivElement).innerText
 						.toLowerCase()

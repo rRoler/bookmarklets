@@ -26,7 +26,7 @@ function bookmarklet() {
       if (mangaId && !mangaIds.includes(mangaId)) mangaIds.push(mangaId);
     }
   });
-  if (!mangaIds) return alert('No covers found on this page!');
+  if (!mangaIds || mangaIds.length <= 0) return alert('No covers found on this page!');
   const mangaIdsQuery = mangaIds.map(id => isTitlePage ? `manga[]=${id}` : `ids[]=${id}`).join('&');
   getAllCoverData().then(covers => {
     coverElements.forEach(element => {

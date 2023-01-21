@@ -17,7 +17,7 @@ function bookmarklet() {
     const close = parent.querySelector('.close');
     const language = parent.querySelector('.placeholder-text.with-label');
     if (!close || !language) return;
-    if (deleteLanguage.toLowerCase().includes(language.innerText.toLowerCase().replaceAll(' ', ''))) {
+    if (deleteLanguage.toLowerCase().replaceAll(' ', '').includes(language.innerText.toLowerCase().replaceAll(' ', ''))) {
       close.dispatchEvent(new MouseEvent('click'));
       deletedCovers.push(element);
     }
