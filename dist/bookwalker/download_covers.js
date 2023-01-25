@@ -6,7 +6,7 @@
 void function(){const checkSite = () => /bookwalker.jp/.test(window.location.hostname);
 
 function saveAs(file, filename) {
-  const isBlob = typeof file === 'object';
+  const isBlob = file instanceof Blob;
   const url = isBlob ? URL.createObjectURL(file) : file;
   const link = document.createElement('a');
   link.href = url;
@@ -17,9 +17,8 @@ function saveAs(file, filename) {
   if (isBlob) URL.revokeObjectURL(url);
 }
 function getMatch(string, regex, index = 0) {
-  const asinMatches = string.match(regex);
-  if (!asinMatches || !asinMatches[index]) return undefined;
-  return asinMatches[index];
+  const regexMatches = string.match(regex);
+  if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
 
 bookmarklet();

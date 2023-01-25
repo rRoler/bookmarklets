@@ -2,4 +2,4 @@ remote_theme: pages-themes/hacker@v0.2.0
 
 title: Bookmarklets
 description: Various simple bookmarklets
-show_downloads: true
+show_downloads: false

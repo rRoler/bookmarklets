@@ -1,3 +1,6 @@
+import nodePolyfills from 'rollup-plugin-polyfill-node';
+import json from '@rollup/plugin-json';
+import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
@@ -29,7 +32,10 @@ function rollup(bookmarkletsConfig, readme = false) {
 					},
 				],
 				plugins: [
+					json(),
 					resolve({ extensions }),
+					commonjs(),
+					nodePolyfills(),
 					babel(babelConfig),
 					bookmarklet({
 						iife: true,
@@ -64,7 +70,10 @@ function rollup(bookmarkletsConfig, readme = false) {
 					},
 				],
 				plugins: [
+					json(),
 					resolve({ extensions }),
+					commonjs(),
+					nodePolyfills(),
 					babel(babelConfig),
 					terser({
 						compress: {

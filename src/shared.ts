@@ -1,5 +1,5 @@
 function saveAs(file: string | Blob, filename: string): void {
-	const isBlob = typeof file === 'object';
+	const isBlob = file instanceof Blob;
 	const url = isBlob ? URL.createObjectURL(file) : file;
 	const link = document.createElement('a');
 	link.href = url;
@@ -15,9 +15,18 @@ function getMatch(
 	regex: RegExp,
 	index = 0
 ): string | undefined {
-	const asinMatches = string.match(regex);
-	if (!asinMatches || !asinMatches[index]) return undefined;
-	return asinMatches[index];
+	const regexMatches = string.match(regex);
+	if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
 
-export { saveAs, getMatch };
+function splitArray(
+	array: Array<unknown>,
+	chunkSize = 100
+): Array<Array<unknown>> {
+	const arrayCopy = [...array];
+	const resArray = [];
+	while (arrayCopy.length) resArray.push(arrayCopy.splice(0, chunkSize));
+	return resArray;
+}
+
+export { saveAs, getMatch, splitArray };
