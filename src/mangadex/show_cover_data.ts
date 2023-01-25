@@ -126,6 +126,7 @@ function bookmarklet(): void {
 
 								const descriptionTextElement = document.createElement('span');
 								descriptionTextElement.innerText = cover.attributes.description;
+								descriptionTextElement.style.setProperty('max-height', '100%');
 								descriptionTextElement.style.setProperty('margin', '1rem');
 								descriptionTextElement.style.setProperty(
 									'text-align',
