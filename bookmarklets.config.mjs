@@ -4,7 +4,7 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '1.3',
+				version: '1.4',
 				name: 'Show MangaDex Cover Data',
 				description:
 					'Display cover sizes and descriptions on MangaDex. If the cover description exists, an icon will be shown that can be clicked or hovered to display the description.',

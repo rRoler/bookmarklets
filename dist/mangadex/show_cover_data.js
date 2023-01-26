@@ -56,11 +56,6 @@ function bookmarklet() {
             if (cover.attributes.description) {
               descriptionShowElement.setAttribute('title', cover.attributes.description);
               descriptionShowElement.style.setProperty('position', 'absolute');
-              descriptionShowElement.addEventListener('click', e => {
-                e.stopPropagation();
-                e.preventDefault();
-                descriptionElement.style.setProperty('display', descriptionElement.style.getPropertyValue('display') !== 'flex' ? 'flex' : 'none');
-              });
               const descriptionShowElementSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
               descriptionShowElementSvg.setAttribute('fill', 'none');
               descriptionShowElementSvg.setAttribute('viewBox', '0 0 24 24');
@@ -73,6 +68,11 @@ function bookmarklet() {
               descriptionShowElementPath.setAttribute('stroke-linejoin', 'round');
               descriptionShowElementPath.setAttribute('d', 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z');
               descriptionShowElementSvg.appendChild(descriptionShowElementPath);
+              descriptionShowElementSvg.addEventListener('click', e => {
+                e.stopPropagation();
+                e.preventDefault();
+                descriptionElement.style.setProperty('display', 'flex');
+              });
               descriptionShowElement.appendChild(descriptionShowElementSvg);
               const descriptionTextElement = document.createElement('span');
               descriptionTextElement.innerText = cover.attributes.description;
@@ -87,6 +87,11 @@ function bookmarklet() {
               descriptionElement.style.setProperty('align-items', 'center');
               descriptionElement.style.setProperty('justify-content', 'center');
               descriptionElement.style.setProperty('background-color', 'var(--md-accent)');
+              descriptionElement.addEventListener('click', e => {
+                e.stopPropagation();
+                e.preventDefault();
+                descriptionElement.style.setProperty('display', 'none');
+              });
               descriptionElement.appendChild(descriptionTextElement);
             }
             const sizeElement = document.createElement('span');
@@ -96,9 +101,6 @@ function bookmarklet() {
             sizeElement.style.setProperty('position', 'absolute');
             sizeElement.style.setProperty('top', '0');
             if (element instanceof HTMLImageElement) {
-              descriptionShowElement.style.setProperty('top', '0');
-              descriptionShowElement.style.setProperty('right', '0');
-              descriptionShowElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
               sizeElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
               sizeElement.style.setProperty('color', '#fff');
               sizeElement.style.setProperty('left', '0');
@@ -106,20 +108,28 @@ function bookmarklet() {
               sizeElement.style.setProperty('background', 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))');
               if (!element.parentElement) return;
               element.parentElement.appendChild(sizeElement);
-              if (cover.attributes.description) element.parentElement.append(descriptionElement, descriptionShowElement);
+              if (cover.attributes.description) {
+                descriptionShowElement.style.setProperty('top', '0');
+                descriptionShowElement.style.setProperty('right', '0');
+                descriptionShowElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
+                descriptionShowElement.style.setProperty('color', '#fff');
+                element.parentElement.append(descriptionShowElement, descriptionElement);
+              }
               return;
             }
-            descriptionShowElement.style.setProperty('bottom', '0');
-            descriptionShowElement.style.setProperty('padding', '0.2rem 0.4rem');
-            descriptionShowElement.style.setProperty('background-color', 'var(--md-accent)');
-            descriptionShowElement.style.setProperty('border-top-left-radius', '4px');
-            descriptionShowElement.style.setProperty('border-top-right-radius', '4px');
             sizeElement.style.setProperty('padding', '0 0.4rem 0.1rem');
             sizeElement.style.setProperty('background-color', 'var(--md-accent)');
             sizeElement.style.setProperty('border-bottom-left-radius', '4px');
             sizeElement.style.setProperty('border-bottom-right-radius', '4px');
             element.appendChild(sizeElement);
-            if (cover.attributes.description) element.append(descriptionElement, descriptionShowElement);
+            if (cover.attributes.description) {
+              descriptionShowElement.style.setProperty('bottom', '0');
+              descriptionShowElement.style.setProperty('left', '0');
+              descriptionShowElement.style.setProperty('padding', '0.1rem');
+              descriptionShowElement.style.setProperty('background-color', 'var(--md-accent)');
+              descriptionShowElement.style.setProperty('border-top-right-radius', '4px');
+              element.append(descriptionShowElement, descriptionElement);
+            }
           };
         }
       });
