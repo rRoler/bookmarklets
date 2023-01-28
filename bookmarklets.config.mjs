@@ -16,7 +16,7 @@ const bookmarklets = {
 					'Needs to be executed after the "Show MangaDex Cover Data" bookmarklet. Shows all cover descriptions.',
 			},
 			search_missing_links: {
-				version: '1',
+				version: '1.1',
 				name: 'Search MangaDex Missing Links',
 				description:
 					'Requires the title edit permissions. Opens a new tab with a search for each missing tracking or retail link from a title edit or create page.',

@@ -35,7 +35,7 @@ function bookmarklet(): void {
 	);
 	const draftId = BM.getMatch(
 		window.location.pathname,
-		/(\/draft\/+[-0-9a-f]{20,})\/edit/,
+		/\/(draft\/+[-0-9a-f]{20,})\/edit/,
 		1
 	);
 	const titleId = mangaId || draftId;
@@ -53,7 +53,6 @@ function bookmarklet(): void {
 		getToken(
 			'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary'
 		);
-	console.debug(authTokens);
 	fetch(`https://api.mangadex.org/manga/${titleId}`, {
 		headers: {
 			Authorization: draftId
@@ -64,12 +63,17 @@ function bookmarklet(): void {
 		.then((rsp) => rsp.json())
 		.then((rsp: Api.MangaResponse) => {
 			const originalLang = rsp.data.attributes.originalLanguage;
-			const originalTitle = rsp.data.attributes.altTitles.find(
-				(title) => title[originalLang]
-			);
+			let originalTitle = undefined;
+			try {
+				originalTitle = rsp.data.attributes.altTitles.find(
+					(title) => title[originalLang]
+				);
+			} catch (e) {
+				console.debug('No alt titles found');
+			}
 			let title: string | null = originalTitle
 				? originalTitle[originalLang]
-				: rsp.data.attributes.title.en;
+				: rsp.data.attributes.title.en || '';
 			title = prompt('Enter a title to search for', title);
 			if (!title) return;
 
