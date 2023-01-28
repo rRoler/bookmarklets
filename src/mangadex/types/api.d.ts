@@ -42,7 +42,7 @@ export interface MangaType {
 		altTitles: Array<LocalisedStringObject>;
 		description: Array<LocalisedStringObject>;
 		isLocked: boolean;
-		links: Array<LocalisedStringObject>;
+		links: LocalisedStringObject;
 		originalLanguage: string;
 		lastVolume: string;
 		lastChapter: string;
@@ -61,7 +61,13 @@ export interface MangaType {
 	relationships: Array<Relationship>;
 }
 
-export interface MangaQueryResponse {
+export interface MangaResponse {
+	result: 'ok';
+	response: 'entity';
+	data: MangaType;
+}
+
+export interface MangaListResponse {
 	result: 'ok';
 	response: 'collection';
 	data: Array<MangaType>;
@@ -85,7 +91,7 @@ interface CoverType {
 	relationships: Array<Relationship>;
 }
 
-interface CoverListQueryResponse {
+interface CoverListResponse {
 	result: 'ok';
 	response: 'collection';
 	data: Array<CoverType>;

@@ -29,15 +29,19 @@ function bookmarklet() {
   };
   document.querySelectorAll('img, div').forEach(element => {
     const imageSource = element.src || element.style.getPropertyValue('background-image');
-    if (!/\/covers\/+[-0-9a-f]{20,}\/+[-0-9a-f]{20,}[^/]+(?:[?#].*)?$/.test(imageSource)) return;
+    if (!/\/covers\/+[-0-9a-f]{20,}\/+[-0-9a-f]{20,}[^/]+(?:[?#].*)?$/.test(imageSource) || element.getAttribute('cover-data-bookmarklet') === 'executed') return;
     const mangaId = getMatch(imageSource, /[-0-9a-f]{20,}/);
     const coverFileName = getMatch(imageSource, /([-0-9a-f]{20,}\.[^/.]*)\.[0-9]+\.[^/.?#]*([?#].*)?$/, 1);
     if (!mangaId || !coverFileName) return;
     coverElements.push(element);
+    element.setAttribute('cover-data-bookmarklet', 'executed');
     if (!coverFileNames[mangaId]) coverFileNames[mangaId] = [];
     if (!coverFileNames[mangaId].includes(coverFileName)) coverFileNames[mangaId].push(coverFileName);
   });
-  if (Object.keys(coverFileNames).length <= 0) return alert('No covers found on this page!');
+  if (Object.keys(coverFileNames).length <= 0) {
+    if (document.querySelector('[cover-data-bookmarklet="executed"]')) return alert('No new covers were found on this page since the last time this bookmarklet was executed!');
+    return alert('No covers are found on this page!');
+  }
   for (const manga in coverFileNames) {
     if (coverFileNames[manga].length > 1) mangaIdsForQuery.cover.push(manga);else mangaIdsForQuery.manga.push(manga);
   }
@@ -57,6 +61,7 @@ function bookmarklet() {
               descriptionShowElement.setAttribute('title', cover.attributes.description);
               descriptionShowElement.style.setProperty('position', 'absolute');
               const descriptionShowElementSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+              descriptionShowElementSvg.classList.add('class', 'cover-data-bookmarklet-show-description');
               descriptionShowElementSvg.setAttribute('fill', 'none');
               descriptionShowElementSvg.setAttribute('viewBox', '0 0 24 24');
               descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
@@ -108,13 +113,13 @@ function bookmarklet() {
               sizeElement.style.setProperty('background', 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))');
               if (!element.parentElement) return;
               element.parentElement.appendChild(sizeElement);
-              if (cover.attributes.description) {
-                descriptionShowElement.style.setProperty('top', '0');
-                descriptionShowElement.style.setProperty('right', '0');
-                descriptionShowElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
-                descriptionShowElement.style.setProperty('color', '#fff');
-                element.parentElement.append(descriptionShowElement, descriptionElement);
-              }
+              if (!cover.attributes.description) return;
+              descriptionShowElement.style.setProperty('top', '0');
+              descriptionShowElement.style.setProperty('right', '0');
+              descriptionShowElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
+              descriptionShowElement.style.setProperty('color', '#fff');
+              descriptionElement.style.setProperty('border-radius', '0.25rem');
+              element.parentElement.append(descriptionShowElement, descriptionElement);
               return;
             }
             sizeElement.style.setProperty('padding', '0 0.4rem 0.1rem');
@@ -122,14 +127,13 @@ function bookmarklet() {
             sizeElement.style.setProperty('border-bottom-left-radius', '4px');
             sizeElement.style.setProperty('border-bottom-right-radius', '4px');
             element.appendChild(sizeElement);
-            if (cover.attributes.description) {
-              descriptionShowElement.style.setProperty('bottom', '0');
-              descriptionShowElement.style.setProperty('left', '0');
-              descriptionShowElement.style.setProperty('padding', '0.1rem');
-              descriptionShowElement.style.setProperty('background-color', 'var(--md-accent)');
-              descriptionShowElement.style.setProperty('border-top-right-radius', '4px');
-              element.append(descriptionShowElement, descriptionElement);
-            }
+            if (!cover.attributes.description) return;
+            descriptionShowElement.style.setProperty('bottom', '0');
+            descriptionShowElement.style.setProperty('left', '0');
+            descriptionShowElement.style.setProperty('padding', '0.1rem');
+            descriptionShowElement.style.setProperty('background-color', 'var(--md-accent)');
+            descriptionShowElement.style.setProperty('border-top-right-radius', '4px');
+            element.append(descriptionShowElement, descriptionElement);
           };
         }
       });
