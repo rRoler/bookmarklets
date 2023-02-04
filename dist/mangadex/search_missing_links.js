@@ -19,10 +19,11 @@ function bookmarklet() {
     bw: 'https://bookwalker.jp/search/?qcat=2&word=',
     kt: 'https://kitsu.io/manga?subtype=manga&text=',
     mu: 'https://www.mangaupdates.com/search.html?search=',
+    nu: 'https://www.novelupdates.com/?s=',
     amz: 'https://www.amazon.co.jp/s?rh=n:466280&k=',
     cdj: 'https://www.cdjapan.co.jp/searchuni?term.media_format=BOOK&q=',
     ebj: 'https://ebookjapan.yahoo.co.jp/search/?keyword=',
-    mal: 'https://myanimelist.net/manga.php?type=manga&keyword='
+    mal: 'https://myanimelist.net/manga.php?q='
   };
   if (/\/create\/title/.test(window.location.pathname)) {
     const title = prompt('Enter a title to search for');
@@ -32,20 +33,21 @@ function bookmarklet() {
     }
     return;
   }
-  const mangaId = getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
-  const draftId = getMatch(window.location.pathname, /\/(draft\/+[-0-9a-f]{20,})\/edit/, 1);
-  const titleId = mangaId || draftId;
-  if (!titleId) return alert('This is not a title edit page!');
+  const mangaId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
+  const draftId = getMatch(window.location.href, /\/draft\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.href, /\/draft\/+([-0-9a-f]{20,})\/edit/, 1) || getMatch(window.location.href, /\/title\/+([-0-9a-f]{20,})\?draft=true/, 1) || getMatch(window.location.href, /\/title\/edit\/+([-0-9a-f]{20,})\?draft=true/, 1);
+  const titleId = draftId || mangaId;
+  if (!titleId) return alert('This is not a title page!');
   const getToken = key => {
     const token = localStorage.getItem(key);
     if (token) return JSON.parse(token);
   };
   const authTokens = getToken('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || getToken('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
-  fetch(`https://api.mangadex.org/manga/${titleId}`, {
+  fetch(`https://api.mangadex.org/manga${draftId ? '/draft/' : '/'}${titleId}`, {
     headers: {
       Authorization: draftId ? `${authTokens.token_type} ${authTokens.access_token}` : ''
     }
   }).then(rsp => rsp.json()).then(rsp => {
+    if (JSON.stringify(Object.keys(websites)) === JSON.stringify(Object.keys(rsp.data.attributes.links))) return alert('All links are already added!');
     const originalLang = rsp.data.attributes.originalLanguage;
     let originalTitle = undefined;
     try {

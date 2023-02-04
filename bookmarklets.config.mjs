@@ -4,7 +4,7 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '1.5',
+				version: '1.6',
 				name: 'Show MangaDex Cover Data',
 				description:
 					'Display cover sizes and descriptions on MangaDex. If the cover description exists, an icon will be shown that can be clicked or hovered to display the description.',
@@ -13,13 +13,13 @@ const bookmarklets = {
 				version: '1',
 				name: 'Show All MangaDex Cover Descriptions',
 				description:
-					'Needs to be executed after the "Show MangaDex Cover Data" bookmarklet. Shows all cover descriptions.',
+					'**Needs to be executed after the [Show MangaDex Cover Data](#show-all-mangadex-cover-descriptions) bookmarklet.** Shows all cover descriptions.',
 			},
 			search_missing_links: {
-				version: '1.1',
+				version: '1.2',
 				name: 'Search MangaDex Missing Links',
 				description:
-					'Requires the title edit permissions. Opens a new tab with a search for each missing tracking or retail link from a title edit or create page.',
+					'Opens a new tab with a search for each missing tracking or retail link from a title page.',
 			},
 			del_covers_by_lang: {
 				version: '1.1',

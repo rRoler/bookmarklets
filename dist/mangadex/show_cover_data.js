@@ -61,7 +61,7 @@ function bookmarklet() {
               descriptionShowElement.setAttribute('title', cover.attributes.description);
               descriptionShowElement.style.setProperty('position', 'absolute');
               const descriptionShowElementSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-              descriptionShowElementSvg.classList.add('class', 'cover-data-bookmarklet-show-description');
+              descriptionShowElementSvg.classList.add('cover-data-bookmarklet-show-description');
               descriptionShowElementSvg.setAttribute('fill', 'none');
               descriptionShowElementSvg.setAttribute('viewBox', '0 0 24 24');
               descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
@@ -111,6 +111,8 @@ function bookmarklet() {
               sizeElement.style.setProperty('left', '0');
               sizeElement.style.setProperty('width', '100%');
               sizeElement.style.setProperty('background', 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))');
+              sizeElement.style.setProperty('border-top-right-radius', '0.25rem');
+              sizeElement.style.setProperty('border-top-left-radius', '0.25rem');
               if (!element.parentElement) return;
               element.parentElement.appendChild(sizeElement);
               if (!cover.attributes.description) return;

@@ -91,7 +91,6 @@ function bookmarklet(): void {
 									'svg'
 								);
 								descriptionShowElementSvg.classList.add(
-									'class',
 									'cover-data-bookmarklet-show-description'
 								);
 								descriptionShowElementSvg.setAttribute('fill', 'none');
@@ -171,6 +170,14 @@ function bookmarklet(): void {
 								sizeElement.style.setProperty(
 									'background',
 									'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))'
+								);
+								sizeElement.style.setProperty(
+									'border-top-right-radius',
+									'0.25rem'
+								);
+								sizeElement.style.setProperty(
+									'border-top-left-radius',
+									'0.25rem'
 								);
 								if (!element.parentElement) return;
 								element.parentElement.appendChild(sizeElement);
