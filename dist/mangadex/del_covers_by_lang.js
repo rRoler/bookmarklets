@@ -1,6 +1,6 @@
 /*!
- * Licensed under MIT: https://raw.githubusercontent.com/rRoler/Bookmarklets/main/LICENSE
- * Third party licenses: https://raw.githubusercontent.com/rRoler/Bookmarklets/main/dist/mangadex/del_covers_by_lang.dependencies.txt
+ * Licensed under MIT: https://raw.githubusercontent.com/rRoler/bookmarklets/main/LICENSE
+ * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/mangadex/del_covers_by_lang.dependencies.txt
  */
 
 void function(){const checkSite = () => /mangadex\..*/.test(window.location.hostname);

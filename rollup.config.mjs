@@ -10,7 +10,7 @@ import generateReadme from './lib/rollup-plugin-generateReadme.mjs';
 import fs from 'fs-extra';
 
 const repositoryRawUrl =
-	'https://raw.githubusercontent.com/rRoler/Bookmarklets/main';
+	'https://raw.githubusercontent.com/rRoler/bookmarklets/main';
 
 function rollup(bookmarkletsConfig, readme = false) {
 	const extensions = ['.ts', '.tsx', '.mjs', '.js', '.jsx'];

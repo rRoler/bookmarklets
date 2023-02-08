@@ -1,4 +1,4 @@
-const repositoryUrl = 'https://github.com/rRoler/Bookmarklets/blob/main';
+const repositoryUrl = 'https://github.com/rRoler/bookmarklets/blob/main';
 const bookmarklets = {
 	mangadex: {
 		name: 'MangaDex',

@@ -1,6 +1,6 @@
 /*!
- * Licensed under MIT: https://raw.githubusercontent.com/rRoler/Bookmarklets/main/LICENSE
- * Third party licenses: https://raw.githubusercontent.com/rRoler/Bookmarklets/main/dist/bookwalker/download_covers.dependencies.txt
+ * Licensed under MIT: https://raw.githubusercontent.com/rRoler/bookmarklets/main/LICENSE
+ * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/bookwalker/download_covers.dependencies.txt
  */
 
 void function(){const checkSite = () => /bookwalker.jp/.test(window.location.hostname);

@@ -1,6 +1,6 @@
 /*!
- * Licensed under MIT: https://raw.githubusercontent.com/rRoler/Bookmarklets/main/LICENSE
- * Third party licenses: https://raw.githubusercontent.com/rRoler/Bookmarklets/main/dist/amazon/download_covers.dependencies.txt
+ * Licensed under MIT: https://raw.githubusercontent.com/rRoler/bookmarklets/main/LICENSE
+ * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/amazon/download_covers.dependencies.txt
  */
 
 void function(){function saveAs(file, filename) {
