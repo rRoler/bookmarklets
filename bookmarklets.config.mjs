@@ -1,3 +1,4 @@
+const repositoryUrl = 'https://github.com/rRoler/Bookmarklets/blob/main';
 const bookmarklets = {
 	mangadex: {
 		name: 'MangaDex',
@@ -13,7 +14,7 @@ const bookmarklets = {
 				version: '1',
 				name: 'Show All MangaDex Cover Descriptions',
 				description:
-					'**Needs to be executed after the [Show MangaDex Cover Data](#show-mangadex-cover-data) bookmarklet.** Shows all cover descriptions.',
+					'**Needs to be executed after the "Show MangaDex Cover Data" bookmarklet.** Shows all cover descriptions.',
 			},
 			add_cover_descriptions: {
 				version: '1',
@@ -73,10 +74,10 @@ function bookmarkletsConfig() {
 			bookmarklets[website].bookmarklets[bookmarklet].author = 'Roler';
 			bookmarklets[website].bookmarklets[
 				bookmarklet
-			].source_code = `https://github.com/rRoler/Bookmarklets/blob/main/src/${website}/${bookmarklet}.ts`;
+			].source_code = `${repositoryUrl}/src/${website}/${bookmarklet}.ts`;
 			bookmarklets[website].bookmarklets[
 				bookmarklet
-			].bookmarklet_code = `https://github.com/rRoler/Bookmarklets/blob/main/dist/${website}/${bookmarklet}.min.js`;
+			].bookmarklet_code = `${repositoryUrl}/dist/${website}/${bookmarklet}.min.js`;
 		}
 	}
 
