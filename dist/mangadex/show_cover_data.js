@@ -23,27 +23,36 @@ function bookmarklet() {
   const maxRequestOffset = 1000;
   const coverElements = [];
   const coverFileNames = {};
+  const skippedCoverFileNames = {};
   const mangaIdsForQuery = {
     manga: [],
     cover: []
   };
   document.querySelectorAll('img, div').forEach(element => {
     const imageSource = element.src || element.style.getPropertyValue('background-image');
-    if (!/\/covers\/+[-0-9a-f]{20,}\/+[-0-9a-f]{20,}[^/]+(?:[?#].*)?$/.test(imageSource) || element.getAttribute('cover-data-bookmarklet') === 'executed') return;
+    if (!/\/covers\/+[-0-9a-f]{20,}\/+[-0-9a-f]{20,}[^/]+(?:[?#].*)?$/.test(imageSource)) return;
     const mangaId = getMatch(imageSource, /[-0-9a-f]{20,}/);
-    const coverFileName = getMatch(imageSource, /([-0-9a-f]{20,}\.[^/.]*)\.[0-9]+\.[^/.?#]*([?#].*)?$/, 1);
+    const coverFileName = getMatch(imageSource, /([-0-9a-f]{20,}\.[^/.]*)\.[0-9]+\.[^/.?#]*([?#].*)?$/, 1) || getMatch(imageSource, /[-0-9a-f]{20,}\.[^/.]*?$/);
     if (!mangaId || !coverFileName) return;
+    const addCoverFileName = coverFileNames => {
+      if (!coverFileNames[mangaId]) coverFileNames[mangaId] = [];
+      if (!coverFileNames[mangaId].includes(coverFileName)) coverFileNames[mangaId].push(coverFileName);
+    };
+    if (element.getAttribute('cover-data-bookmarklet') === 'executed') {
+      addCoverFileName(skippedCoverFileNames);
+      return;
+    }
     coverElements.push(element);
     element.setAttribute('cover-data-bookmarklet', 'executed');
-    if (!coverFileNames[mangaId]) coverFileNames[mangaId] = [];
-    if (!coverFileNames[mangaId].includes(coverFileName)) coverFileNames[mangaId].push(coverFileName);
+    addCoverFileName(coverFileNames);
   });
   if (Object.keys(coverFileNames).length <= 0) {
     if (document.querySelector('[cover-data-bookmarklet="executed"]')) return alert('No new covers were found on this page since the last time this bookmarklet was executed!');
     return alert('No covers are found on this page!');
   }
   for (const manga in coverFileNames) {
-    if (coverFileNames[manga].length > 1) mangaIdsForQuery.cover.push(manga);else mangaIdsForQuery.manga.push(manga);
+    const skippedCoversLength = skippedCoverFileNames[manga] ? skippedCoverFileNames[manga].length : 0;
+    if (coverFileNames[manga].length + skippedCoversLength > 1) mangaIdsForQuery.cover.push(manga);else mangaIdsForQuery.manga.push(manga);
   }
   getAllCoverData().then(covers => {
     coverElements.forEach(element => {

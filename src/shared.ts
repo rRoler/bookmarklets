@@ -29,4 +29,44 @@ function splitArray(
 	return resArray;
 }
 
-export { saveAs, getMatch, splitArray };
+function waitForElement(querySelectors: string): Promise<Node> {
+	let element = document.body.querySelector(querySelectors);
+	return new Promise((resolve) => {
+		if (element) return resolve(element);
+
+		const observer = new MutationObserver(() => {
+			element = document.body.querySelector(querySelectors);
+			if (element) {
+				resolve(element);
+				observer.disconnect();
+			}
+		});
+
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
+	});
+}
+
+function waitForNoElement(querySelectors: string): Promise<void> {
+	let element = document.body.querySelector(querySelectors);
+	return new Promise((resolve) => {
+		if (!element) return resolve();
+
+		const observer = new MutationObserver(() => {
+			element = document.body.querySelector(querySelectors);
+			if (!element) {
+				resolve();
+				observer.disconnect();
+			}
+		});
+
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
+	});
+}
+
+export { saveAs, getMatch, splitArray, waitForElement, waitForNoElement };

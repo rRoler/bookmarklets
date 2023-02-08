@@ -11,6 +11,7 @@ function bookmarklet(): void {
 	const maxRequestOffset = 1000;
 	const coverElements: Array<HTMLImageElement | HTMLDivElement> = [];
 	const coverFileNames: Record<string, Array<string>> = {};
+	const skippedCoverFileNames: Record<string, Array<string>> = {};
 	const mangaIdsForQuery: Record<string, Array<string>> = {
 		manga: [],
 		cover: [],
@@ -23,22 +24,31 @@ function bookmarklet(): void {
 		if (
 			!/\/covers\/+[-0-9a-f]{20,}\/+[-0-9a-f]{20,}[^/]+(?:[?#].*)?$/.test(
 				imageSource
-			) ||
-			element.getAttribute('cover-data-bookmarklet') === 'executed'
+			)
 		)
 			return;
 		const mangaId = BM.getMatch(imageSource, /[-0-9a-f]{20,}/);
-		const coverFileName = BM.getMatch(
-			imageSource,
-			/([-0-9a-f]{20,}\.[^/.]*)\.[0-9]+\.[^/.?#]*([?#].*)?$/,
-			1
-		);
+		const coverFileName =
+			BM.getMatch(
+				imageSource,
+				/([-0-9a-f]{20,}\.[^/.]*)\.[0-9]+\.[^/.?#]*([?#].*)?$/,
+				1
+			) || BM.getMatch(imageSource, /[-0-9a-f]{20,}\.[^/.]*?$/);
 		if (!mangaId || !coverFileName) return;
+		const addCoverFileName = (
+			coverFileNames: Record<string, Array<string>>
+		): void => {
+			if (!coverFileNames[mangaId]) coverFileNames[mangaId] = [];
+			if (!coverFileNames[mangaId].includes(coverFileName))
+				coverFileNames[mangaId].push(coverFileName);
+		};
+		if (element.getAttribute('cover-data-bookmarklet') === 'executed') {
+			addCoverFileName(skippedCoverFileNames);
+			return;
+		}
 		coverElements.push(element as HTMLImageElement | HTMLDivElement);
 		element.setAttribute('cover-data-bookmarklet', 'executed');
-		if (!coverFileNames[mangaId]) coverFileNames[mangaId] = [];
-		if (!coverFileNames[mangaId].includes(coverFileName))
-			coverFileNames[mangaId].push(coverFileName);
+		addCoverFileName(coverFileNames);
 	});
 
 	if (Object.keys(coverFileNames).length <= 0) {
@@ -50,7 +60,11 @@ function bookmarklet(): void {
 	}
 
 	for (const manga in coverFileNames) {
-		if (coverFileNames[manga].length > 1) mangaIdsForQuery.cover.push(manga);
+		const skippedCoversLength = skippedCoverFileNames[manga]
+			? skippedCoverFileNames[manga].length
+			: 0;
+		if (coverFileNames[manga].length + skippedCoversLength > 1)
+			mangaIdsForQuery.cover.push(manga);
 		else mangaIdsForQuery.manga.push(manga);
 	}
 
