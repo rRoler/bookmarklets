@@ -1,6 +1,7 @@
 import * as BM from '../shared';
 import * as amazon from './shared';
 import * as fflate from 'fflate';
+import * as fileSaver from 'file-saver';
 
 bookmarklet();
 
@@ -35,7 +36,7 @@ function bookmarklet(): void {
 	function saveCovers(asins: Array<string | undefined>): void | boolean {
 		asins.forEach((asin) => {
 			if (!asin) return;
-			BM.saveAs(getCoverUrl(asin), `${asin}.jpg`);
+			fileSaver.saveAs(getCoverUrl(asin), `${asin}.jpg`);
 		});
 	}
 	function zipCovers(asins: Array<string | undefined>): void {
@@ -45,7 +46,7 @@ function bookmarklet(): void {
 				if (err) alert('Failed to zip covers!');
 				else chunks.push(chunk);
 				if (final) {
-					BM.saveAs(
+					fileSaver.saveAs(
 						new Blob(chunks, { type: 'application/zip' }),
 						'covers.zip'
 					);
@@ -53,38 +54,40 @@ function bookmarklet(): void {
 			}
 		);
 
-		asins.forEach((asin) => {
-			if (!asin) return;
-			const coverUrl = getCoverUrl(asin);
-			zipCover(coverUrl, asin);
+		let zippedFiles = 0;
+		asins.forEach(async (asin) => {
+			if (asin) {
+				const coverUrl = getCoverUrl(asin);
+				await zipCover(coverUrl, asin);
+			}
+			++zippedFiles;
+			if (zippedFiles >= asins.length) zip.end();
 		});
 
-		let pushedFiles = 0;
-		function zipCover(coverUrl: string, asin: string) {
-			const reader = new FileReader();
-			reader.onload = (event) => {
-				if (!event.target) return ++pushedFiles;
-				const data = new Uint8Array(event.target.result as ArrayBuffer);
-				const file = new fflate.ZipPassThrough(`${asin}.jpg`);
+		function zipCover(coverUrl: string, asin: string): Promise<void> {
+			return new Promise((resolve) => {
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					if (!event.target) return;
+					const data = new Uint8Array(event.target.result as ArrayBuffer);
+					const file = new fflate.ZipPassThrough(`${asin}.jpg`);
 
-				zip.add(file);
-				file.push(data, true);
-				++pushedFiles;
-				if (pushedFiles >= books.length) {
-					zip.end();
-				}
-			};
+					zip.add(file);
+					file.push(data, true);
+					resolve();
+				};
 
-			fetch(coverUrl)
-				.then((rsp) => rsp.blob())
-				.then((blob) => {
-					try {
-						reader.readAsArrayBuffer(blob);
-					} catch (e) {
-						console.error('Failed to zip cover!', e);
-					}
-				})
-				.catch((e) => console.error('Failed to fetch cover!', e));
+				fetch(coverUrl)
+					.then((rsp) => rsp.blob())
+					.then((blob) => {
+						try {
+							reader.readAsArrayBuffer(blob);
+						} catch (e) {
+							console.error('Failed to zip cover!', e);
+						}
+					})
+					.catch((e) => console.error('Failed to fetch cover!', e));
+			});
 		}
 	}
 }

@@ -1,3 +1,4 @@
+/* Replaced with file-saver
 function saveAs(file: string | Blob, filename: string): void {
 	const isBlob = file instanceof Blob;
 	const url = isBlob ? URL.createObjectURL(file) : file;
@@ -8,7 +9,7 @@ function saveAs(file: string | Blob, filename: string): void {
 	link.rel = 'noopener noreferrer';
 	link.dispatchEvent(new MouseEvent('click'));
 	if (isBlob) URL.revokeObjectURL(url);
-}
+}*/
 
 function getMatch(
 	string: string,
@@ -69,4 +70,4 @@ function waitForNoElement(querySelectors: string): Promise<void> {
 	});
 }
 
-export { saveAs, getMatch, splitArray, waitForElement, waitForNoElement };
+export { getMatch, splitArray, waitForElement, waitForNoElement };

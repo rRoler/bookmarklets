@@ -41,7 +41,7 @@ const bookmarklets = {
 		url: 'https://www.amazon.com',
 		bookmarklets: {
 			download_covers: {
-				version: '1',
+				version: '1.1',
 				name: 'Download Amazon Covers',
 				description:
 					'Download covers from Amazon. Mainly for Amazon Japan but should work on most kindle group or single book pages even on Global.',
@@ -53,7 +53,7 @@ const bookmarklets = {
 		url: 'https://bookwalker.jp',
 		bookmarklets: {
 			download_covers: {
-				version: '1',
+				version: '1.1',
 				name: 'Download BookWalker Covers',
 				description:
 					"Download covers from BookWalker. Downloading is limited because of CORS. It's recommended to use the [BookWalker UserScript](https://github.com/rRoler/UserScripts/blob/master/Public/tampermonkey/bookwalker.js) instead.",

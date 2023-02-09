@@ -3,17 +3,19 @@
  * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/amazon/download_covers.dependencies.txt
  */
 
-void function(){function saveAs(file, filename) {
-  const isBlob = file instanceof Blob;
-  const url = isBlob ? URL.createObjectURL(file) : file;
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.dispatchEvent(new MouseEvent('click'));
-  if (isBlob) URL.revokeObjectURL(url);
-}
+void function(){/* Replaced with file-saver
+function saveAs(file: string | Blob, filename: string): void {
+	const isBlob = file instanceof Blob;
+	const url = isBlob ? URL.createObjectURL(file) : file;
+	const link = document.createElement('a');
+	link.href = url;
+	link.download = filename;
+	link.target = '_blank';
+	link.rel = 'noopener noreferrer';
+	link.dispatchEvent(new MouseEvent('click'));
+	if (isBlob) URL.revokeObjectURL(url);
+}*/
+
 function getMatch(string, regex, index = 0) {
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
@@ -455,6 +457,20 @@ var Zip = /*#__PURE__*/ (function () {
     return Zip;
 }());
 
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+var FileSaver_minExports = {};
+var FileSaver_min = {
+  get exports(){ return FileSaver_minExports; },
+  set exports(v){ FileSaver_minExports = v; },
+};
+
+(function (module, exports) {
+	(function(a,b){b();})(commonjsGlobal,function(){function b(a,b){return "undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Deprecated: Expected third argument to be a object"),b={autoBom:!b}),b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(a,b,c){var d=new XMLHttpRequest;d.open("GET",a),d.responseType="blob",d.onload=function(){g(d.response,b,c);},d.onerror=function(){console.error("could not download file");},d.send();}function d(a){var b=new XMLHttpRequest;b.open("HEAD",a,!1);try{b.send();}catch(a){}return 200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"));}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null),a.dispatchEvent(b);}}var f="object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof commonjsGlobal&&commonjsGlobal.global===commonjsGlobal?commonjsGlobal:void 0,a=f.navigator&&/Macintosh/.test(navigator.userAgent)&&/AppleWebKit/.test(navigator.userAgent)&&!/Safari/.test(navigator.userAgent),g=f.saveAs||("object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype&&!a?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download",j.download=g,j.rel="noopener","string"==typeof b?(j.href=b,j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b),setTimeout(function(){i.revokeObjectURL(j.href);},4E4),setTimeout(function(){e(j);},0));}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download","string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else {var i=document.createElement("a");i.href=f,i.target="_blank",setTimeout(function(){e(i);});}}:function(b,d,e,g){if(g=g||open("","_blank"),g&&(g.document.title=g.document.body.innerText="downloading..."),"string"==typeof b)return c(b,d,e);var h="application/octet-stream"===b.type,i=/constructor/i.test(f.HTMLElement)||f.safari,j=/CriOS\/[\d]+/.test(navigator.userAgent);if((j||h&&i||a)&&"undefined"!=typeof FileReader){var k=new FileReader;k.onloadend=function(){var a=k.result;a=j?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"),g?g.location.href=a:location=a,g=null;},k.readAsDataURL(b);}else {var l=f.URL||f.webkitURL,m=l.createObjectURL(b);g?g.location=m:location.href=m,g=null,setTimeout(function(){l.revokeObjectURL(m);},4E4);}});f.saveAs=g.saveAs=g,(module.exports=g);});
+
+	
+} (FileSaver_min));
+
 bookmarklet();
 function bookmarklet() {
   if (!checkSite()) return;
@@ -474,7 +490,7 @@ function bookmarklet() {
   function saveCovers(asins) {
     asins.forEach(asin => {
       if (!asin) return;
-      saveAs(getCoverUrl(asin), `${asin}.jpg`);
+      FileSaver_minExports.saveAs(getCoverUrl(asin), `${asin}.jpg`);
     });
   }
   function zipCovers(asins) {
@@ -482,37 +498,39 @@ function bookmarklet() {
     const zip = new Zip((err, chunk, final) => {
       if (err) alert('Failed to zip covers!');else chunks.push(chunk);
       if (final) {
-        saveAs(new Blob(chunks, {
+        FileSaver_minExports.saveAs(new Blob(chunks, {
           type: 'application/zip'
         }), 'covers.zip');
       }
     });
-    asins.forEach(asin => {
-      if (!asin) return;
-      const coverUrl = getCoverUrl(asin);
-      zipCover(coverUrl, asin);
+    let zippedFiles = 0;
+    asins.forEach(async asin => {
+      if (asin) {
+        const coverUrl = getCoverUrl(asin);
+        await zipCover(coverUrl, asin);
+      }
+      ++zippedFiles;
+      if (zippedFiles >= asins.length) zip.end();
     });
-    let pushedFiles = 0;
     function zipCover(coverUrl, asin) {
-      const reader = new FileReader();
-      reader.onload = event => {
-        if (!event.target) return ++pushedFiles;
-        const data = new Uint8Array(event.target.result);
-        const file = new ZipPassThrough(`${asin}.jpg`);
-        zip.add(file);
-        file.push(data, true);
-        ++pushedFiles;
-        if (pushedFiles >= books.length) {
-          zip.end();
-        }
-      };
-      fetch(coverUrl).then(rsp => rsp.blob()).then(blob => {
-        try {
-          reader.readAsArrayBuffer(blob);
-        } catch (e) {
-          console.error('Failed to zip cover!', e);
-        }
-      }).catch(e => console.error('Failed to fetch cover!', e));
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = event => {
+          if (!event.target) return;
+          const data = new Uint8Array(event.target.result);
+          const file = new ZipPassThrough(`${asin}.jpg`);
+          zip.add(file);
+          file.push(data, true);
+          resolve();
+        };
+        fetch(coverUrl).then(rsp => rsp.blob()).then(blob => {
+          try {
+            reader.readAsArrayBuffer(blob);
+          } catch (e) {
+            console.error('Failed to zip cover!', e);
+          }
+        }).catch(e => console.error('Failed to fetch cover!', e));
+      });
     }
   }
 }}();

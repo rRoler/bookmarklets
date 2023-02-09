@@ -1,5 +1,6 @@
 import * as bookwalker from './shared';
 import * as BM from '../shared';
+import * as fileSaver from 'file-saver';
 
 bookmarklet();
 
@@ -44,7 +45,7 @@ function bookmarklet(): void {
 	function saveCovers(ids: Array<string | undefined>): void | boolean {
 		ids.forEach((id) => {
 			if (!id) return;
-			BM.saveAs(getCoverUrl(id), `${id}.jpg`);
+			fileSaver.saveAs(getCoverUrl(id), `${id}.jpg`);
 		});
 	}
 }
