@@ -28,6 +28,12 @@ const bookmarklets = {
 				description:
 					'Opens a new tab with a search for each missing tracking or retail link from a title page.',
 			},
+			shorten_links: {
+				version: '1',
+				name: 'Shorten MangaDex Links',
+				description:
+					'Requires the title edit permissions. Makes tracking and retail links from a title edit page shorter/prettier.',
+			},
 			del_covers_by_lang: {
 				version: '1.1',
 				name: 'Delete MangaDex Covers by Language',
