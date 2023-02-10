@@ -1,6 +1,7 @@
 import * as mangadex from './shared';
 import * as BM from '../shared';
 import * as Api from './types/api';
+import SimpleProgressBar from '../components/progress_bars';
 
 bookmarklet();
 
@@ -16,6 +17,7 @@ function bookmarklet(): void {
 		manga: [],
 		cover: [],
 	};
+	const progressBar = new SimpleProgressBar();
 
 	document.querySelectorAll('img, div').forEach((element) => {
 		const imageSource =
@@ -59,6 +61,8 @@ function bookmarklet(): void {
 		return alert('No covers are found on this page!');
 	}
 
+	progressBar.addToDocument();
+
 	for (const manga in coverFileNames) {
 		const skippedCoversLength = skippedCoverFileNames[manga]
 			? skippedCoverFileNames[manga].length
@@ -70,6 +74,7 @@ function bookmarklet(): void {
 
 	getAllCoverData()
 		.then((covers) => {
+			let addedCoverData = 0;
 			coverElements.forEach((element) => {
 				const imageSource =
 					(element as HTMLImageElement).src ||
@@ -193,50 +198,57 @@ function bookmarklet(): void {
 									'border-top-left-radius',
 									'0.25rem'
 								);
-								if (!element.parentElement) return;
-								element.parentElement.appendChild(sizeElement);
-								if (!cover.attributes.description) return;
-								descriptionShowElement.style.setProperty('top', '0');
-								descriptionShowElement.style.setProperty('right', '0');
-								descriptionShowElement.style.setProperty(
-									'padding',
-									'0.5rem 0.5rem 1rem'
+								element.parentElement?.appendChild(sizeElement);
+								if (cover.attributes.description) {
+									descriptionShowElement.style.setProperty('top', '0');
+									descriptionShowElement.style.setProperty('right', '0');
+									descriptionShowElement.style.setProperty(
+										'padding',
+										'0.5rem 0.5rem 1rem'
+									);
+									descriptionShowElement.style.setProperty('color', '#fff');
+									descriptionElement.style.setProperty(
+										'border-radius',
+										'0.25rem'
+									);
+									element.parentElement?.append(
+										descriptionShowElement,
+										descriptionElement
+									);
+								}
+							} else {
+								sizeElement.style.setProperty('padding', '0 0.4rem 0.1rem');
+								sizeElement.style.setProperty(
+									'background-color',
+									'var(--md-accent)'
 								);
-								descriptionShowElement.style.setProperty('color', '#fff');
-								descriptionElement.style.setProperty(
-									'border-radius',
-									'0.25rem'
+								sizeElement.style.setProperty(
+									'border-bottom-left-radius',
+									'4px'
 								);
-								element.parentElement.append(
-									descriptionShowElement,
-									descriptionElement
+								sizeElement.style.setProperty(
+									'border-bottom-right-radius',
+									'4px'
 								);
-								return;
+								element.appendChild(sizeElement);
+								if (cover.attributes.description) {
+									descriptionShowElement.style.setProperty('bottom', '0');
+									descriptionShowElement.style.setProperty('left', '0');
+									descriptionShowElement.style.setProperty('padding', '0.1rem');
+									descriptionShowElement.style.setProperty(
+										'background-color',
+										'var(--md-accent)'
+									);
+									descriptionShowElement.style.setProperty(
+										'border-top-right-radius',
+										'4px'
+									);
+									element.append(descriptionShowElement, descriptionElement);
+								}
 							}
-							sizeElement.style.setProperty('padding', '0 0.4rem 0.1rem');
-							sizeElement.style.setProperty(
-								'background-color',
-								'var(--md-accent)'
+							progressBar.update(
+								(++addedCoverData / coverElements.length) * 100
 							);
-							sizeElement.style.setProperty('border-bottom-left-radius', '4px');
-							sizeElement.style.setProperty(
-								'border-bottom-right-radius',
-								'4px'
-							);
-							element.appendChild(sizeElement);
-							if (!cover.attributes.description) return;
-							descriptionShowElement.style.setProperty('bottom', '0');
-							descriptionShowElement.style.setProperty('left', '0');
-							descriptionShowElement.style.setProperty('padding', '0.1rem');
-							descriptionShowElement.style.setProperty(
-								'background-color',
-								'var(--md-accent)'
-							);
-							descriptionShowElement.style.setProperty(
-								'border-top-right-radius',
-								'4px'
-							);
-							element.append(descriptionShowElement, descriptionElement);
 						};
 					}
 				});

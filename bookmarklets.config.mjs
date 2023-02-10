@@ -5,38 +5,38 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '1.7',
-				name: 'Show MangaDex Cover Data',
+				version: '1.8',
+				name: 'Show Cover Data',
 				description:
-					'Display cover sizes and descriptions on MangaDex. If the cover description exists, an icon will be shown that can be clicked or hovered to display the description.',
+					'Display cover sizes and descriptions. If the cover description exists, an icon will be shown that can be clicked or hovered to display the description.',
 			},
 			show_all_cover_descriptions: {
 				version: '1',
-				name: 'Show All MangaDex Cover Descriptions',
+				name: 'Show All Cover Descriptions',
 				description:
 					'**Needs to be executed after the "Show MangaDex Cover Data" bookmarklet.** Shows all cover descriptions.',
 			},
 			add_cover_descriptions: {
 				version: '1',
-				name: 'Add MangaDex Cover Descriptions',
+				name: 'Add Cover Descriptions',
 				description:
 					'Requires the title edit and cover edit permissions. Adds cover descriptions to all newly added covers with no description on the title edit page.',
 			},
 			search_missing_links: {
 				version: '1.2',
-				name: 'Search MangaDex Missing Links',
+				name: 'Search Missing Links',
 				description:
 					'Opens a new tab with a search for each missing tracking or retail link from a title page.',
 			},
 			shorten_links: {
-				version: '1',
-				name: 'Shorten MangaDex Links',
+				version: '1.1',
+				name: 'Shorten Links',
 				description:
 					'Requires the title edit permissions. Makes tracking and retail links from a title edit page shorter/prettier.',
 			},
 			del_covers_by_lang: {
 				version: '1.1',
-				name: 'Delete MangaDex Covers by Language',
+				name: 'Delete Covers by Language',
 				description:
 					'Requires the title edit and cover delete permissions. Removes all covers in a given language from the title edit page.',
 			},
@@ -44,13 +44,13 @@ const bookmarklets = {
 	},
 	amazon: {
 		name: 'Amazon',
-		url: 'https://www.amazon.com',
+		url: 'https://www.amazon.co.jp',
 		bookmarklets: {
 			download_covers: {
-				version: '1.1',
-				name: 'Download Amazon Covers',
+				version: '1.2',
+				name: 'Download Covers',
 				description:
-					'Download covers from Amazon. Mainly for Amazon Japan but should work on most kindle group or single book pages even on Global.',
+					'Downloads covers. Mainly for Amazon Japan but should work on most kindle group or single book pages even on Global.',
 			},
 		},
 	},
@@ -60,9 +60,9 @@ const bookmarklets = {
 		bookmarklets: {
 			download_covers: {
 				version: '1.1',
-				name: 'Download BookWalker Covers',
+				name: 'Download Covers',
 				description:
-					"Download covers from BookWalker. Downloading is limited because of CORS. It's recommended to use the [BookWalker UserScript](https://github.com/rRoler/UserScripts/blob/master/Public/tampermonkey/bookwalker.js) instead.",
+					"Downloads covers. Downloading is limited because of CORS. It's recommended to use the [BookWalker UserScript](https://github.com/rRoler/UserScripts/blob/master/Public/tampermonkey/bookwalker.js) instead.",
 			},
 		},
 	},

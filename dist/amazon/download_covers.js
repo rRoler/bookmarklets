@@ -471,6 +471,63 @@ var FileSaver_min = {
 	
 } (FileSaver_min));
 
+function _defineProperty(obj, key, value) {
+  key = _toPropertyKey(key);
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
+function _toPrimitive(input, hint) {
+  if (typeof input !== "object" || input === null) return input;
+  var prim = input[Symbol.toPrimitive];
+  if (prim !== undefined) {
+    var res = prim.call(input, hint || "default");
+    if (typeof res !== "object") return res;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return (hint === "string" ? String : Number)(input);
+}
+function _toPropertyKey(arg) {
+  var key = _toPrimitive(arg, "string");
+  return typeof key === "symbol" ? key : String(key);
+}
+
+class SimpleProgressBar {
+  constructor(initialPercentage = 0) {
+    _defineProperty(this, "addToDocument", () => document.documentElement.appendChild(this.element));
+    _defineProperty(this, "removeFromDocument", () => this.element.remove());
+    const background = document.createElement('div');
+    background.style.setProperty('z-index', '1000');
+    background.style.setProperty('position', 'fixed');
+    background.style.setProperty('bottom', '0');
+    background.style.setProperty('left', '0');
+    background.style.setProperty('width', '100%');
+    background.style.setProperty('height', '24px');
+    background.style.setProperty('background-color', '#3c3c3c');
+    const progress = document.createElement('div');
+    progress.style.setProperty('height', '100%');
+    progress.style.setProperty('background-color', '#b5e853');
+    progress.style.setProperty('transition', 'width 200ms');
+    this.bar = progress;
+    this.update(initialPercentage);
+    background.appendChild(progress);
+    this.element = background;
+  }
+  update(percentage) {
+    const currentPercentageRounded = Math.round(parseInt(this.bar.style.getPropertyValue('width')));
+    const percentageRounded = Math.round(percentage);
+    if (percentageRounded >= 100) this.removeFromDocument();else if (currentPercentageRounded !== percentageRounded && percentageRounded >= 0) this.bar.style.setProperty('width', `${percentageRounded}%`);
+  }
+}
+
 bookmarklet();
 function bookmarklet() {
   if (!checkSite()) return;
@@ -494,23 +551,29 @@ function bookmarklet() {
     });
   }
   function zipCovers(asins) {
+    const progressBar = new SimpleProgressBar();
+    progressBar.addToDocument();
+    let zippedFiles = 0;
     const chunks = [];
     const zip = new Zip((err, chunk, final) => {
-      if (err) alert('Failed to zip covers!');else chunks.push(chunk);
+      progressBar.update(zippedFiles / asins.length * 100);
+      if (err) {
+        progressBar.removeFromDocument();
+        alert('Failed to zip covers!');
+      } else chunks.push(chunk);
       if (final) {
+        progressBar.removeFromDocument();
         FileSaver_minExports.saveAs(new Blob(chunks, {
           type: 'application/zip'
         }), 'covers.zip');
       }
     });
-    let zippedFiles = 0;
     asins.forEach(async asin => {
       if (asin) {
         const coverUrl = getCoverUrl(asin);
         await zipCover(coverUrl, asin);
       }
-      ++zippedFiles;
-      if (zippedFiles >= asins.length) zip.end();
+      if (++zippedFiles >= asins.length) zip.end();
     });
     function zipCover(coverUrl, asin) {
       return new Promise(resolve => {
@@ -527,9 +590,13 @@ function bookmarklet() {
           try {
             reader.readAsArrayBuffer(blob);
           } catch (e) {
+            progressBar.removeFromDocument();
             console.error('Failed to zip cover!', e);
           }
-        }).catch(e => console.error('Failed to fetch cover!', e));
+        }).catch(e => {
+          progressBar.removeFromDocument();
+          console.error('Failed to fetch cover!', e);
+        });
       });
     }
   }

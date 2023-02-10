@@ -2,6 +2,7 @@ import * as BM from '../shared';
 import * as amazon from './shared';
 import * as fflate from 'fflate';
 import * as fileSaver from 'file-saver';
+import SimpleProgressBar from '../components/progress_bars';
 
 bookmarklet();
 
@@ -40,12 +41,20 @@ function bookmarklet(): void {
 		});
 	}
 	function zipCovers(asins: Array<string | undefined>): void {
+		const progressBar = new SimpleProgressBar();
+		progressBar.addToDocument();
+
+		let zippedFiles = 0;
 		const chunks: Uint8Array[] = [];
 		const zip = new fflate.Zip(
 			(err: fflate.FlateError | null, chunk: Uint8Array, final: boolean) => {
-				if (err) alert('Failed to zip covers!');
-				else chunks.push(chunk);
+				progressBar.update((zippedFiles / asins.length) * 100);
+				if (err) {
+					progressBar.removeFromDocument();
+					alert('Failed to zip covers!');
+				} else chunks.push(chunk);
 				if (final) {
+					progressBar.removeFromDocument();
 					fileSaver.saveAs(
 						new Blob(chunks, { type: 'application/zip' }),
 						'covers.zip'
@@ -54,14 +63,12 @@ function bookmarklet(): void {
 			}
 		);
 
-		let zippedFiles = 0;
 		asins.forEach(async (asin) => {
 			if (asin) {
 				const coverUrl = getCoverUrl(asin);
 				await zipCover(coverUrl, asin);
 			}
-			++zippedFiles;
-			if (zippedFiles >= asins.length) zip.end();
+			if (++zippedFiles >= asins.length) zip.end();
 		});
 
 		function zipCover(coverUrl: string, asin: string): Promise<void> {
@@ -83,10 +90,14 @@ function bookmarklet(): void {
 						try {
 							reader.readAsArrayBuffer(blob);
 						} catch (e) {
+							progressBar.removeFromDocument();
 							console.error('Failed to zip cover!', e);
 						}
 					})
-					.catch((e) => console.error('Failed to fetch cover!', e));
+					.catch((e) => {
+						progressBar.removeFromDocument();
+						console.error('Failed to fetch cover!', e);
+					});
 			});
 		}
 	}

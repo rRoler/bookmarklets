@@ -29,6 +29,63 @@ function splitArray(array, chunkSize = 100) {
   return resArray;
 }
 
+function _defineProperty(obj, key, value) {
+  key = _toPropertyKey(key);
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+  return obj;
+}
+function _toPrimitive(input, hint) {
+  if (typeof input !== "object" || input === null) return input;
+  var prim = input[Symbol.toPrimitive];
+  if (prim !== undefined) {
+    var res = prim.call(input, hint || "default");
+    if (typeof res !== "object") return res;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return (hint === "string" ? String : Number)(input);
+}
+function _toPropertyKey(arg) {
+  var key = _toPrimitive(arg, "string");
+  return typeof key === "symbol" ? key : String(key);
+}
+
+class SimpleProgressBar {
+  constructor(initialPercentage = 0) {
+    _defineProperty(this, "addToDocument", () => document.documentElement.appendChild(this.element));
+    _defineProperty(this, "removeFromDocument", () => this.element.remove());
+    const background = document.createElement('div');
+    background.style.setProperty('z-index', '1000');
+    background.style.setProperty('position', 'fixed');
+    background.style.setProperty('bottom', '0');
+    background.style.setProperty('left', '0');
+    background.style.setProperty('width', '100%');
+    background.style.setProperty('height', '24px');
+    background.style.setProperty('background-color', '#3c3c3c');
+    const progress = document.createElement('div');
+    progress.style.setProperty('height', '100%');
+    progress.style.setProperty('background-color', '#b5e853');
+    progress.style.setProperty('transition', 'width 200ms');
+    this.bar = progress;
+    this.update(initialPercentage);
+    background.appendChild(progress);
+    this.element = background;
+  }
+  update(percentage) {
+    const currentPercentageRounded = Math.round(parseInt(this.bar.style.getPropertyValue('width')));
+    const percentageRounded = Math.round(percentage);
+    if (percentageRounded >= 100) this.removeFromDocument();else if (currentPercentageRounded !== percentageRounded && percentageRounded >= 0) this.bar.style.setProperty('width', `${percentageRounded}%`);
+  }
+}
+
 bookmarklet();
 function bookmarklet() {
   if (!checkSite()) return;
@@ -41,6 +98,7 @@ function bookmarklet() {
     manga: [],
     cover: []
   };
+  const progressBar = new SimpleProgressBar();
   document.querySelectorAll('img, div').forEach(element => {
     const imageSource = element.src || element.style.getPropertyValue('background-image');
     if (!/\/covers\/+[-0-9a-f]{20,}\/+[-0-9a-f]{20,}[^/]+(?:[?#].*)?$/.test(imageSource)) return;
@@ -63,11 +121,13 @@ function bookmarklet() {
     if (document.querySelector('[cover-data-bookmarklet="executed"]')) return alert('No new covers were found on this page since the last time this bookmarklet was executed!');
     return alert('No covers are found on this page!');
   }
+  progressBar.addToDocument();
   for (const manga in coverFileNames) {
     const skippedCoversLength = skippedCoverFileNames[manga] ? skippedCoverFileNames[manga].length : 0;
     if (coverFileNames[manga].length + skippedCoversLength > 1) mangaIdsForQuery.cover.push(manga);else mangaIdsForQuery.manga.push(manga);
   }
   getAllCoverData().then(covers => {
+    let addedCoverData = 0;
     coverElements.forEach(element => {
       const imageSource = element.src || element.style.getPropertyValue('background-image');
       covers.forEach(cover => {
@@ -128,6 +188,7 @@ function bookmarklet() {
             sizeElement.style.setProperty('position', 'absolute');
             sizeElement.style.setProperty('top', '0');
             if (element instanceof HTMLImageElement) {
+              var _element$parentElemen;
               sizeElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
               sizeElement.style.setProperty('color', '#fff');
               sizeElement.style.setProperty('left', '0');
@@ -135,29 +196,32 @@ function bookmarklet() {
               sizeElement.style.setProperty('background', 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))');
               sizeElement.style.setProperty('border-top-right-radius', '0.25rem');
               sizeElement.style.setProperty('border-top-left-radius', '0.25rem');
-              if (!element.parentElement) return;
-              element.parentElement.appendChild(sizeElement);
-              if (!cover.attributes.description) return;
-              descriptionShowElement.style.setProperty('top', '0');
-              descriptionShowElement.style.setProperty('right', '0');
-              descriptionShowElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
-              descriptionShowElement.style.setProperty('color', '#fff');
-              descriptionElement.style.setProperty('border-radius', '0.25rem');
-              element.parentElement.append(descriptionShowElement, descriptionElement);
-              return;
+              (_element$parentElemen = element.parentElement) === null || _element$parentElemen === void 0 ? void 0 : _element$parentElemen.appendChild(sizeElement);
+              if (cover.attributes.description) {
+                var _element$parentElemen2;
+                descriptionShowElement.style.setProperty('top', '0');
+                descriptionShowElement.style.setProperty('right', '0');
+                descriptionShowElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
+                descriptionShowElement.style.setProperty('color', '#fff');
+                descriptionElement.style.setProperty('border-radius', '0.25rem');
+                (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 ? void 0 : _element$parentElemen2.append(descriptionShowElement, descriptionElement);
+              }
+            } else {
+              sizeElement.style.setProperty('padding', '0 0.4rem 0.1rem');
+              sizeElement.style.setProperty('background-color', 'var(--md-accent)');
+              sizeElement.style.setProperty('border-bottom-left-radius', '4px');
+              sizeElement.style.setProperty('border-bottom-right-radius', '4px');
+              element.appendChild(sizeElement);
+              if (cover.attributes.description) {
+                descriptionShowElement.style.setProperty('bottom', '0');
+                descriptionShowElement.style.setProperty('left', '0');
+                descriptionShowElement.style.setProperty('padding', '0.1rem');
+                descriptionShowElement.style.setProperty('background-color', 'var(--md-accent)');
+                descriptionShowElement.style.setProperty('border-top-right-radius', '4px');
+                element.append(descriptionShowElement, descriptionElement);
+              }
             }
-            sizeElement.style.setProperty('padding', '0 0.4rem 0.1rem');
-            sizeElement.style.setProperty('background-color', 'var(--md-accent)');
-            sizeElement.style.setProperty('border-bottom-left-radius', '4px');
-            sizeElement.style.setProperty('border-bottom-right-radius', '4px');
-            element.appendChild(sizeElement);
-            if (!cover.attributes.description) return;
-            descriptionShowElement.style.setProperty('bottom', '0');
-            descriptionShowElement.style.setProperty('left', '0');
-            descriptionShowElement.style.setProperty('padding', '0.1rem');
-            descriptionShowElement.style.setProperty('background-color', 'var(--md-accent)');
-            descriptionShowElement.style.setProperty('border-top-right-radius', '4px');
-            element.append(descriptionShowElement, descriptionElement);
+            progressBar.update(++addedCoverData / coverElements.length * 100);
           };
         }
       });
