@@ -522,8 +522,8 @@ class SimpleProgressBar {
     this.element = background;
   }
   update(percentage) {
-    const currentPercentageRounded = Math.round(parseInt(this.bar.style.getPropertyValue('width')));
-    const percentageRounded = Math.round(percentage);
+    const currentPercentageRounded = Math.ceil(parseInt(this.bar.style.getPropertyValue('width')));
+    const percentageRounded = Math.ceil(percentage);
     if (percentageRounded >= 100) this.removeFromDocument();else if (currentPercentageRounded !== percentageRounded && percentageRounded >= 0) this.bar.style.setProperty('width', `${percentageRounded}%`);
   }
 }

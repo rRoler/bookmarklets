@@ -22,10 +22,10 @@ class SimpleProgressBar {
 	}
 
 	update(percentage: number): void {
-		const currentPercentageRounded = Math.round(
+		const currentPercentageRounded = Math.ceil(
 			parseInt(this.bar.style.getPropertyValue('width'))
 		);
-		const percentageRounded = Math.round(percentage);
+		const percentageRounded = Math.ceil(percentage);
 		if (percentageRounded >= 100) this.removeFromDocument();
 		else if (
 			currentPercentageRounded !== percentageRounded &&

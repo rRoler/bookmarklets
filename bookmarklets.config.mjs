@@ -5,7 +5,7 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '1.8',
+				version: '1.9',
 				name: 'Show Cover Data',
 				description:
 					'Display cover sizes and descriptions. If the cover description exists, an icon will be shown that can be clicked or hovered to display the description.',
@@ -47,7 +47,7 @@ const bookmarklets = {
 		url: 'https://www.amazon.co.jp',
 		bookmarklets: {
 			download_covers: {
-				version: '1.2',
+				version: '1.3',
 				name: 'Download Covers',
 				description:
 					'Downloads covers. Mainly for Amazon Japan but should work on most kindle group or single book pages even on Global.',
