@@ -37,7 +37,7 @@ function bookmarklet() {
     const link = element.value;
     let shortLink = link;
     const getRegex = regex => new RegExp(`https?://${regex}`);
-    const regexes = ['(anilist.co/manga/)([0-9]+)', '(www.anime-planet.com/manga/)([a-z0-9-]+)', '(bookwalker.jp/series/)([0-9]+)', '(kitsu.io/manga/)([0-9]+)', '(kitsu.io/manga/)([a-z0-9-]+)', '(www.mangaupdates.com/series/)([a-z0-9]{7})', '(www.novelupdates.com/series/)([a-z0-9-]+)', '(www.amazon[a-z.]+/).*(dp/[A-Z0-9]{10})', '(www.amazon[a-z.]+/).*(gp/product/[A-Z0-9]{10})', '(www.amazon[a-z.]+/gp/product).*(/[A-Z0-9]{10})', '(www.cdjapan.co.jp/product/)(NEOBK-[0-9]+)', '(ebookjapan.yahoo.co.jp/books/)([0-9]+)', '(myanimelist.net/manga/)([0-9]+)'];
+    const regexes = ['(anilist.co/manga/)([0-9]+)', '(www.anime-planet.com/manga/)([a-z0-9-]+)', '(bookwalker.jp/series/)([0-9]+/list)', '(bookwalker.jp/series/)([0-9]+)', '(kitsu.io/manga/)([0-9]+)', '(kitsu.io/manga/)([a-z0-9-]+)', '(www.mangaupdates.com/series/)([a-z0-9]{7})', '(www.novelupdates.com/series/)([a-z0-9-]+)', '(www.amazon[a-z.]+/).*(dp/[A-Z0-9]{10})', '(www.amazon[a-z.]+/).*(gp/product/[A-Z0-9]{10})', '(www.amazon[a-z.]+/gp/product).*(/[A-Z0-9]{10})', '(www.cdjapan.co.jp/product/)(NEOBK-[0-9]+)', '(ebookjapan.yahoo.co.jp/books/)([0-9]+)', '(myanimelist.net/manga/)([0-9]+)'];
     for (const index in regexes) {
       const regex = regexes[index];
       const websiteUrl = getMatch(link, getRegex(regex), 1);

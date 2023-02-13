@@ -6,6 +6,7 @@ const config = {
 	bookmarklets: [
 		bookmarkletsConfig().mangadex.bookmarklets.show_cover_data,
 		bookmarkletsConfig().mangadex.bookmarklets.show_all_cover_descriptions,
+		bookmarkletsConfig().mangadex.bookmarklets.add_cover_descriptions,
 		bookmarkletsConfig().mangadex.bookmarklets.search_missing_links,
 		bookmarkletsConfig().mangadex.bookmarklets.shorten_links,
 		bookmarkletsConfig().mangadex.bookmarklets.del_covers_by_lang,

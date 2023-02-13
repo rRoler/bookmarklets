@@ -26,6 +26,7 @@ function bookmarklet(): void {
 		const regexes: Array<RegExp | string> = [
 			'(anilist.co/manga/)([0-9]+)',
 			'(www.anime-planet.com/manga/)([a-z0-9-]+)',
+			'(bookwalker.jp/series/)([0-9]+/list)',
 			'(bookwalker.jp/series/)([0-9]+)',
 			'(kitsu.io/manga/)([0-9]+)',
 			'(kitsu.io/manga/)([a-z0-9-]+)',

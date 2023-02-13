@@ -60,7 +60,7 @@ function _toPropertyKey(arg) {
 
 class SimpleProgressBar {
   constructor(initialPercentage = 0) {
-    _defineProperty(this, "addToDocument", () => document.documentElement.appendChild(this.element));
+    _defineProperty(this, "addToDocument", () => document.body.appendChild(this.element));
     _defineProperty(this, "removeFromDocument", () => this.element.remove());
     const background = document.createElement('div');
     background.style.setProperty('z-index', '1000');

@@ -34,8 +34,7 @@ class SimpleProgressBar {
 			this.bar.style.setProperty('width', `${percentageRounded}%`);
 	}
 
-	addToDocument = (): HTMLDivElement =>
-		document.documentElement.appendChild(this.element);
+	addToDocument = (): HTMLDivElement => document.body.appendChild(this.element);
 
 	removeFromDocument = (): void => this.element.remove();
 }

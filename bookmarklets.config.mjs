@@ -5,7 +5,7 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '1.9',
+				version: '2',
 				name: 'Show Cover Data',
 				description:
 					'Display cover sizes and descriptions. If the cover description exists, an icon will be shown that can be clicked or hovered to display the description.',
@@ -29,7 +29,7 @@ const bookmarklets = {
 					'Opens a new tab with a search for each missing tracking or retail link from a title page.',
 			},
 			shorten_links: {
-				version: '1.1',
+				version: '1.2',
 				name: 'Shorten Links',
 				description:
 					'Requires the title edit permissions. Makes tracking and retail links from a title edit page shorter/prettier.',
@@ -47,7 +47,7 @@ const bookmarklets = {
 		url: 'https://www.amazon.co.jp',
 		bookmarklets: {
 			download_covers: {
-				version: '1.3',
+				version: '1.4',
 				name: 'Download Covers',
 				description:
 					'Downloads covers. Mainly for Amazon Japan but should work on most kindle group or single book pages even on Global.',
