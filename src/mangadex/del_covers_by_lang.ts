@@ -28,6 +28,7 @@ function bookmarklet(): void {
 			deletedCovers.push(element as HTMLDivElement);
 		}
 	});
-	if (deletedCovers.length > 0) console.log('Deleted covers:', deletedCovers);
-	else alert('No covers in given language found!');
+	if (deletedCovers.length <= 0)
+		return alert('No covers in given language found!');
+	console.log('Deleted covers:', deletedCovers);
 }

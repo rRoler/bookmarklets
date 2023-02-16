@@ -10,47 +10,33 @@ function bookmarklet(): void {
 	const websites: Api.LocalisedStringObject = {
 		al: 'https://anilist.co/search/manga?search=',
 		ap: 'https://www.anime-planet.com/manga/all?name=',
-		bw: 'https://bookwalker.jp/search/?qcat=2&word=',
 		kt: 'https://kitsu.io/manga?subtype=manga&text=',
 		mu: 'https://www.mangaupdates.com/search.html?search=',
-		nu: 'https://www.novelupdates.com/?s=',
-		amz: 'https://www.amazon.co.jp/s?rh=n:466280&k=',
-		cdj: 'https://www.cdjapan.co.jp/searchuni?term.media_format=BOOK&q=',
-		ebj: 'https://ebookjapan.yahoo.co.jp/search/?keyword=',
 		mal: 'https://myanimelist.net/manga.php?q=',
+		nu: 'https://www.novelupdates.com/?s=',
+		bw: 'https://bookwalker.jp/search/?qcat=2&word=',
+		amz: 'https://www.amazon.co.jp/s?rh=n:466280&k=',
+		ebj: 'https://ebookjapan.yahoo.co.jp/search/?keyword=',
+		cdj: 'https://www.cdjapan.co.jp/searchuni?term.media_format=BOOK&q=',
 	};
 
 	if (/\/create\/title/.test(window.location.pathname)) {
 		const title = prompt('Enter a title to search for');
 		if (!title) return;
 
-		for (const website in websites) {
+		for (const website in websites)
 			window.open(websites[website] + title, '_blank', 'noopener,noreferrer');
-		}
 		return;
 	}
 
-	const mangaId =
+	const titleId =
 		BM.getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) ||
 		BM.getMatch(
 			window.location.pathname,
 			/\/title\/edit\/+([-0-9a-f]{20,})/,
 			1
 		);
-	const draftId =
-		BM.getMatch(window.location.href, /\/draft\/+([-0-9a-f]{20,})/, 1) ||
-		BM.getMatch(window.location.href, /\/draft\/+([-0-9a-f]{20,})\/edit/, 1) ||
-		BM.getMatch(
-			window.location.href,
-			/\/title\/+([-0-9a-f]{20,})\?draft=true/,
-			1
-		) ||
-		BM.getMatch(
-			window.location.href,
-			/\/title\/edit\/+([-0-9a-f]{20,})\?draft=true/,
-			1
-		);
-	const titleId = draftId || mangaId;
+	const isDraft = /\?draft=true/.test(window.location.search);
 
 	if (!titleId) return alert('This is not a title page!');
 
@@ -66,10 +52,10 @@ function bookmarklet(): void {
 			'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary'
 		);
 	fetch(
-		`https://api.mangadex.org/manga${draftId ? '/draft/' : '/'}${titleId}`,
+		`https://api.mangadex.org/manga${isDraft ? '/draft/' : '/'}${titleId}`,
 		{
 			headers: {
-				Authorization: draftId
+				Authorization: isDraft
 					? `${authTokens.token_type} ${authTokens.access_token}`
 					: '',
 			},
@@ -77,10 +63,10 @@ function bookmarklet(): void {
 	)
 		.then((rsp) => rsp.json())
 		.then((rsp: Api.MangaResponse) => {
-			if (
-				JSON.stringify(Object.keys(websites)) ===
-				JSON.stringify(Object.keys(rsp.data.attributes.links))
-			)
+			const missingWebsites = Object.keys(websites).filter(
+				(website) => !rsp.data.attributes.links[website]
+			);
+			if (missingWebsites.length <= 0)
 				return alert('All links are already added!');
 
 			const originalLang = rsp.data.attributes.originalLanguage;
@@ -98,14 +84,9 @@ function bookmarklet(): void {
 			title = prompt('Enter a title to search for', title);
 			if (!title) return;
 
-			for (const website in websites) {
-				if (!rsp.data.attributes.links[website])
-					window.open(
-						websites[website] + title,
-						'_blank',
-						'noopener,noreferrer'
-					);
-			}
+			missingWebsites.forEach((website) =>
+				window.open(websites[website] + title, '_blank', 'noopener,noreferrer')
+			);
 		})
 		.catch((e) => {
 			console.error(e);

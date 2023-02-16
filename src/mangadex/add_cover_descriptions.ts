@@ -42,7 +42,7 @@ async function bookmarklet(): Promise<void> {
 				if (!(element as HTMLTextAreaElement).value)
 					(element as HTMLTextAreaElement).value = description as string;
 				else changed = false;
-				element.dispatchEvent(new Event('input'));
+				element.dispatchEvent(new InputEvent('input'));
 				save?.dispatchEvent(new MouseEvent('click'));
 				BM.waitForNoElement(selectors).then(() => resolve(changed));
 			});

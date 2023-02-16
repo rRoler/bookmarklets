@@ -11,6 +11,7 @@ class SimpleProgressBar {
 		background.style.setProperty('width', '100%');
 		background.style.setProperty('height', '24px');
 		background.style.setProperty('background-color', '#3c3c3c');
+		background.style.setProperty('cursor', 'pointer');
 		const progress = document.createElement('div');
 		progress.style.setProperty('height', '100%');
 		progress.style.setProperty('background-color', '#b5e853');
@@ -18,6 +19,7 @@ class SimpleProgressBar {
 		this.bar = progress;
 		this.update(initialPercentage);
 		background.appendChild(progress);
+		background.addEventListener('click', this.removeFromDocument);
 		this.element = background;
 	}
 

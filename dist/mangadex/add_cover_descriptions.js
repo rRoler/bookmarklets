@@ -5,18 +5,6 @@
 
 void function(){const checkSite = () => /mangadex\..*/.test(window.location.hostname);
 
-/* Replaced with file-saver
-function saveAs(file: string | Blob, filename: string): void {
-	const isBlob = file instanceof Blob;
-	const url = isBlob ? URL.createObjectURL(file) : file;
-	const link = document.createElement('a');
-	link.href = url;
-	link.download = filename;
-	link.target = '_blank';
-	link.rel = 'noopener noreferrer';
-	link.dispatchEvent(new MouseEvent('click'));
-	if (isBlob) URL.revokeObjectURL(url);
-}*/
 function waitForElement(querySelectors) {
   let element = document.body.querySelector(querySelectors);
   return new Promise(resolve => {
@@ -79,7 +67,7 @@ async function bookmarklet() {
         let changed = true;
         const save = (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 ? void 0 : (_element$parentElemen3 = _element$parentElemen2.parentElement) === null || _element$parentElemen3 === void 0 ? void 0 : (_element$parentElemen4 = _element$parentElemen3.parentElement) === null || _element$parentElemen4 === void 0 ? void 0 : (_element$parentElemen5 = _element$parentElemen4.parentElement) === null || _element$parentElemen5 === void 0 ? void 0 : _element$parentElemen5.querySelector('button.primary');
         if (!element.value) element.value = description;else changed = false;
-        element.dispatchEvent(new Event('input'));
+        element.dispatchEvent(new InputEvent('input'));
         save === null || save === void 0 ? void 0 : save.dispatchEvent(new MouseEvent('click'));
         waitForNoElement(selectors).then(() => resolve(changed));
       });
