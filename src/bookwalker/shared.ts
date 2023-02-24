@@ -1,3 +1,7 @@
-const checkSite = (): boolean => /bookwalker.jp/.test(window.location.hostname);
+import * as BM from '../shared';
 
-export { checkSite };
+const newBookmarklet = (code: VoidFunction): void => {
+	BM.newBookmarklet('bookwalker.jp', code);
+};
+
+export { newBookmarklet };

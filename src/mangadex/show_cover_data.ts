@@ -3,11 +3,7 @@ import * as BM from '../shared';
 import * as Api from './types/api';
 import SimpleProgressBar from '../components/progress_bars';
 
-bookmarklet();
-
-function bookmarklet(): void {
-	if (!mangadex.checkSite()) return;
-
+mangadex.newBookmarklet(() => {
 	const requestLimit = 100;
 	const maxRequestOffset = 1000;
 	const coverElements: Array<HTMLImageElement | HTMLDivElement> = [];
@@ -58,7 +54,7 @@ function bookmarklet(): void {
 			return alert(
 				'No new covers were found on this page since the last time this bookmarklet was executed!'
 			);
-		return alert('No covers are found on this page!');
+		return alert('No covers were found on this page!');
 	}
 
 	progressBar.addToDocument();
@@ -314,10 +310,8 @@ function bookmarklet(): void {
 					new Error(`Offset is bigger than ${maxRequestOffset}:\n ${url}`)
 				);
 			fetch(url)
-				.then((rsp) => {
-					resolve(rsp.json());
-				})
+				.then((rsp) => resolve(rsp.json()))
 				.catch(reject);
 		});
 	}
-}
+});

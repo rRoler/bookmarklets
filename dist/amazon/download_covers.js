@@ -3,12 +3,18 @@
  * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/amazon/download_covers.dependencies.txt
  */
 
-void function(){function getMatch(string, regex, index = 0) {
+void function(){function newBookmarklet$1(websiteRegex, code) {
+  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
+  code();
+}
+function getMatch(string, regex, index = 0) {
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
 
-const checkSite = () => /www.amazon.*/.test(window.location.hostname);
+const newBookmarklet = code => {
+  newBookmarklet$1('www.amazon.*', code);
+};
 
 // DEFLATE is a complex format; to read this code, you should probably check the RFC first:
 
@@ -517,9 +523,7 @@ class SimpleProgressBar {
   }
 }
 
-bookmarklet();
-function bookmarklet() {
-  if (!checkSite()) return;
+newBookmarklet(() => {
   const zipAmount = 4;
   const books = document.querySelectorAll('.itemImageLink');
   const getAsin = url => getMatch(url, /(?:[/dp]|$)([A-Z0-9]{10})/, 1);
@@ -589,4 +593,4 @@ function bookmarklet() {
       });
     }
   }
-}}();
+});}();

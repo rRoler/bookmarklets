@@ -1,3 +1,7 @@
-const checkSite = (): boolean => /www.amazon.*/.test(window.location.hostname);
+import * as BM from '../shared';
 
-export { checkSite };
+const newBookmarklet = (code: VoidFunction): void => {
+	BM.newBookmarklet('www.amazon.*', code);
+};
+
+export { newBookmarklet };

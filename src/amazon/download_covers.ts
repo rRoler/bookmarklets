@@ -4,11 +4,7 @@ import * as fflate from 'fflate';
 import * as fileSaver from 'file-saver';
 import SimpleProgressBar from '../components/progress_bars';
 
-bookmarklet();
-
-function bookmarklet(): void {
-	if (!amazon.checkSite()) return;
-
+amazon.newBookmarklet(() => {
 	const zipAmount = 4;
 	const books = document.querySelectorAll('.itemImageLink');
 	const getAsin = (url: string): string | undefined =>
@@ -101,4 +97,4 @@ function bookmarklet(): void {
 			});
 		}
 	}
-}
+});

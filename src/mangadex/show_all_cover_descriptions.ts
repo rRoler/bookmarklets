@@ -1,10 +1,6 @@
 import * as mangadex from './shared';
 
-bookmarklet();
-
-function bookmarklet(): void {
-	if (!mangadex.checkSite()) return;
-
+mangadex.newBookmarklet(() => {
 	const showDescriptionButtons = document.querySelectorAll(
 		'.cover-data-bookmarklet-show-description'
 	);
@@ -14,4 +10,4 @@ function bookmarklet(): void {
 	showDescriptionButtons.forEach((element) =>
 		element.dispatchEvent(new MouseEvent('click'))
 	);
-}
+});

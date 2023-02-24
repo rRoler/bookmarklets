@@ -3,12 +3,18 @@
  * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/bookwalker/download_covers.dependencies.txt
  */
 
-void function(){const checkSite = () => /bookwalker.jp/.test(window.location.hostname);
-
+void function(){function newBookmarklet$1(websiteRegex, code) {
+  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
+  code();
+}
 function getMatch(string, regex, index = 0) {
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
+
+const newBookmarklet = code => {
+  newBookmarklet$1('bookwalker.jp', code);
+};
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -24,9 +30,7 @@ var FileSaver_min = {
 	
 } (FileSaver_min));
 
-bookmarklet();
-function bookmarklet() {
-  if (!checkSite()) return;
+newBookmarklet(() => {
   const confirmAmount = 4;
   let covers = document.querySelectorAll('img.lazy');
   if (/de([-0-9a-f]{20,}\/.*)?$/.test(window.location.pathname) || document.querySelector('#js-episode-list')) covers = document.querySelectorAll('meta[property="og:image"]');
@@ -48,4 +52,4 @@ function bookmarklet() {
       FileSaver_minExports.saveAs(getCoverUrl(id), `${id}.jpg`);
     });
   }
-}}();
+});}();

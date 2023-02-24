@@ -1,6 +1,6 @@
 /*!
  * Licensed under MIT: https://raw.githubusercontent.com/rRoler/bookmarklets/main/LICENSE
- * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/mangadex/search_missing_links.dependencies.txt
+ * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/mangadex/open_links.dependencies.txt
  */
 
 void function(){function newBookmarklet$1(websiteRegex, code) {
@@ -38,38 +38,24 @@ function fetchTitleInfo() {
 }
 
 newBookmarklet(() => {
-  const websites = {
-    al: 'https://anilist.co/search/manga?search=',
-    ap: 'https://www.anime-planet.com/manga/all?name=',
-    kt: 'https://kitsu.io/manga?subtype=manga&text=',
-    mu: 'https://www.mangaupdates.com/search.html?search=',
-    mal: 'https://myanimelist.net/manga.php?q=',
-    nu: 'https://www.novelupdates.com/?s=',
-    bw: 'https://bookwalker.jp/search/?qcat=2&word=',
-    amz: 'https://www.amazon.co.jp/s?rh=n:466280&k=',
-    ebj: 'https://ebookjapan.yahoo.co.jp/search/?keyword=',
-    cdj: 'https://www.cdjapan.co.jp/searchuni?term.media_format=BOOK&q='
-  };
-  if (/\/create\/title/.test(window.location.pathname)) {
-    const title = prompt('Enter a title to search for');
-    if (!title) return;
-    for (const website in websites) window.open(websites[website] + title, '_blank', 'noopener,noreferrer');
-    return;
-  }
   fetchTitleInfo().then(titleInfo => {
-    const missingWebsites = Object.keys(websites).filter(website => !titleInfo.data.attributes.links[website]);
-    if (missingWebsites.length <= 0) return alert('All links are already added!');
-    const originalLang = titleInfo.data.attributes.originalLanguage;
-    let originalTitle = undefined;
-    try {
-      originalTitle = titleInfo.data.attributes.altTitles.find(title => title[originalLang]);
-    } catch (e) {
-      console.debug('No alt titles found');
+    const websites = {
+      al: 'https://anilist.co/manga/',
+      ap: 'https://www.anime-planet.com/manga/',
+      kt: 'https://kitsu.io/manga/',
+      mu: /[A-Za-z]/.test(titleInfo.data.attributes.links.mu) ? 'https://www.mangaupdates.com/series/' : 'https://www.mangaupdates.com/series.html?id=',
+      mal: 'https://myanimelist.net/manga/',
+      nu: 'https://www.novelupdates.com/series/',
+      bw: 'https://bookwalker.jp/',
+      amz: '',
+      ebj: '',
+      cdj: ''
+    };
+    for (const website in titleInfo.data.attributes.links) {
+      const websiteUrl = websites[website] || '';
+      const link = websiteUrl + titleInfo.data.attributes.links[website];
+      window.open(link, '_blank', 'noopener,noreferrer');
     }
-    let title = originalTitle ? originalTitle[originalLang] : titleInfo.data.attributes.title.en || '';
-    title = prompt('Enter a title to search for', title);
-    if (!title) return;
-    missingWebsites.forEach(website => window.open(websites[website] + title, '_blank', 'noopener,noreferrer'));
   });
 }, {
   titlePage: true

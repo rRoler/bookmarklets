@@ -8,7 +8,7 @@ const config = {
 
 function getAllBookmarklets() {
 	const bookmarklets = [];
-	const config = bookmarkletsConfig();
+	const config = bookmarkletsConfig;
 	for (const website in config) {
 		for (const bookmarklet in config[website].bookmarklets) {
 			bookmarklets.push(config[website].bookmarklets[bookmarklet]);

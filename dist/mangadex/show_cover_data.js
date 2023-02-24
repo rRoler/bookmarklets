@@ -3,8 +3,10 @@
  * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/mangadex/show_cover_data.dependencies.txt
  */
 
-void function(){const checkSite = () => /mangadex\..*/.test(window.location.hostname);
-
+void function(){function newBookmarklet$1(websiteRegex, code) {
+  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
+  code();
+}
 function getMatch(string, regex, index = 0) {
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
@@ -15,6 +17,20 @@ function splitArray(array, chunkSize = 100) {
   while (arrayCopy.length) resArray.push(arrayCopy.splice(0, chunkSize));
   return resArray;
 }
+function parseStorage(key) {
+  const value = localStorage.getItem(key);
+  if (value) return JSON.parse(value);
+}
+
+const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
+const newBookmarklet = (code, settings = {}) => {
+  newBookmarklet$1('mangadex.org|canary.mangadex.dev', () => {
+    if (settings.titlePage && !titleId) return alert('This is not a title page!');
+    if (settings.editPage && !/\/edit\//.test(window.location.pathname)) return alert('This is not an edit page!');
+    code();
+  });
+};
+parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
 
 function _defineProperty(obj, key, value) {
   key = _toPropertyKey(key);
@@ -75,9 +91,7 @@ class SimpleProgressBar {
   }
 }
 
-bookmarklet();
-function bookmarklet() {
-  if (!checkSite()) return;
+newBookmarklet(() => {
   const requestLimit = 100;
   const maxRequestOffset = 1000;
   const coverElements = [];
@@ -108,7 +122,7 @@ function bookmarklet() {
   });
   if (Object.keys(coverFileNames).length <= 0) {
     if (document.querySelector('[cover-data-bookmarklet="executed"]')) return alert('No new covers were found on this page since the last time this bookmarklet was executed!');
-    return alert('No covers are found on this page!');
+    return alert('No covers were found on this page!');
   }
   progressBar.addToDocument();
   for (const manga in coverFileNames) {
@@ -261,9 +275,7 @@ function bookmarklet() {
       let url = `https://api.mangadex.org/${endpoint}?${mangaIdsQuery}&includes[]=cover_art&limit=${requestLimit}&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic&offset=${offset}`;
       if (isCoverEndpoint) url = `https://api.mangadex.org/${endpoint}?order[volume]=asc&${mangaIdsQuery}&limit=${requestLimit}&offset=${offset}`;
       if (offset > maxRequestOffset) return reject(new Error(`Offset is bigger than ${maxRequestOffset}:\n ${url}`));
-      fetch(url).then(rsp => {
-        resolve(rsp.json());
-      }).catch(reject);
+      fetch(url).then(rsp => resolve(rsp.json())).catch(reject);
     });
   }
-}}();
+});}();

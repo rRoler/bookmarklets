@@ -1,3 +1,12 @@
+function newBookmarklet(
+	websiteRegex: string | RegExp,
+	code: VoidFunction
+): void {
+	if (!new RegExp(websiteRegex).test(window.location.hostname))
+		return alert('Bookmarklet executed on a wrong website!');
+	code();
+}
+
 function getMatch(
 	string: string,
 	regex: RegExp,
@@ -57,4 +66,16 @@ function waitForNoElement(querySelectors: string): Promise<void> {
 	});
 }
 
-export { getMatch, splitArray, waitForElement, waitForNoElement };
+function parseStorage(key: string) {
+	const value = localStorage.getItem(key);
+	if (value) return JSON.parse(value);
+}
+
+export {
+	newBookmarklet,
+	getMatch,
+	splitArray,
+	waitForElement,
+	waitForNoElement,
+	parseStorage,
+};

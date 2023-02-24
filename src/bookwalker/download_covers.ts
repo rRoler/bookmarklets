@@ -2,11 +2,7 @@ import * as bookwalker from './shared';
 import * as BM from '../shared';
 import * as fileSaver from 'file-saver';
 
-bookmarklet();
-
-function bookmarklet(): void {
-	if (!bookwalker.checkSite()) return;
-
+bookwalker.newBookmarklet(() => {
 	const confirmAmount = 4;
 	let covers = document.querySelectorAll('img.lazy');
 	if (
@@ -48,4 +44,4 @@ function bookmarklet(): void {
 			fileSaver.saveAs(getCoverUrl(id), `${id}.jpg`);
 		});
 	}
-}
+});

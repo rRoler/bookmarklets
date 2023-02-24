@@ -3,16 +3,30 @@
  * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/mangadex/shorten_links.dependencies.txt
  */
 
-void function(){const checkSite = () => /mangadex\..*/.test(window.location.hostname);
-
+void function(){function newBookmarklet$1(websiteRegex, code) {
+  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
+  code();
+}
 function getMatch(string, regex, index = 0) {
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
+function parseStorage(key) {
+  const value = localStorage.getItem(key);
+  if (value) return JSON.parse(value);
+}
 
-bookmarklet();
-function bookmarklet() {
-  if (!checkSite()) return;
+const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
+const newBookmarklet = (code, settings = {}) => {
+  newBookmarklet$1('mangadex.org|canary.mangadex.dev', () => {
+    if (settings.titlePage && !titleId) return alert('This is not a title page!');
+    if (settings.editPage && !/\/edit\//.test(window.location.pathname)) return alert('This is not an edit page!');
+    code();
+  });
+};
+parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
+
+newBookmarklet(() => {
   const inputs = [];
   const getLinks = divIndex => {
     var _document$querySelect;
@@ -32,9 +46,9 @@ function bookmarklet() {
     const asinRegex = '[A-Z0-9]{10}';
     const regexes = [`(anilist.co/manga/)(${numIdRegex})`, `(www.anime-planet.com/manga/)(${numAndLetterIdRegex})`, `(kitsu.io/manga/)(${numIdRegex})`, `(kitsu.io/manga/)(${numAndLetterIdRegex})`, `(www.mangaupdates.com/series/)(${numAndLetterIdRegex})`, `(myanimelist.net/manga/)(${numIdRegex})`, `(www.novelupdates.com/series/)(${numAndLetterIdRegex})`, `(bookwalker.jp/series/)(${numIdRegex}/list)`, `(bookwalker.jp/series/)(${numIdRegex})`, `(www.amazon[a-z.]+/).*(dp/${asinRegex})`, `(www.amazon[a-z.]+/).*(gp/product/${asinRegex})`, `(www.amazon[a-z.]+/gp/product).*(/${asinRegex})`, `(ebookjapan.yahoo.co.jp/books/)(${numIdRegex})`, `(www.cdjapan.co.jp/product/)(NEOBK-${numIdRegex})`];
     for (const index in regexes) {
-      const regex = regexes[index];
-      const websiteUrl = getMatch(link, getRegex(regex), 1);
-      const id = getMatch(link, getRegex(regex), 2);
+      const regex = getRegex(regexes[index]);
+      const websiteUrl = getMatch(link, regex, 1);
+      const id = getMatch(link, regex, 2);
       if (websiteUrl && id) {
         shortLink = `https://${websiteUrl}${id}`;
         break;
@@ -47,4 +61,7 @@ function bookmarklet() {
   });
   if (Object.keys(changedLinks).length <= 0) return alert('No links changed!');
   console.log('Changed links:', changedLinks);
-}}();
+}, {
+  titlePage: true,
+  editPage: true
+});}();
