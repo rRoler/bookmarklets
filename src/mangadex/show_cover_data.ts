@@ -7,8 +7,8 @@ mangadex.newBookmarklet(() => {
 	const requestLimit = 100;
 	const maxRequestOffset = 1000;
 	const coverElements: Array<HTMLImageElement | HTMLDivElement> = [];
-	const coverFileNames: Record<string, Array<string>> = {};
-	const skippedCoverFileNames: Record<string, Array<string>> = {};
+	const coverFileNames: Map<string, Set<string>> = new Map();
+	const skippedCoverFileNames: Map<string, Set<string>> = new Map();
 	const mangaIdsForQuery: Record<string, Array<string>> = {
 		manga: [],
 		cover: [],
@@ -33,12 +33,10 @@ mangadex.newBookmarklet(() => {
 				1
 			) || BM.getMatch(imageSource, /[-0-9a-f]{20,}\.[^/.]*?$/);
 		if (!mangaId || !coverFileName) return;
-		const addCoverFileName = (
-			coverFileNames: Record<string, Array<string>>
-		): void => {
-			if (!coverFileNames[mangaId]) coverFileNames[mangaId] = [];
-			if (!coverFileNames[mangaId].includes(coverFileName))
-				coverFileNames[mangaId].push(coverFileName);
+		const addCoverFileName = (fileNames: Map<string, Set<string>>): void => {
+			fileNames.has(mangaId)
+				? fileNames.get(mangaId)?.add(coverFileName)
+				: fileNames.set(mangaId, new Set([coverFileName]));
 		};
 		if (element.getAttribute('cover-data-bookmarklet') === 'executed') {
 			addCoverFileName(skippedCoverFileNames);
@@ -49,7 +47,7 @@ mangadex.newBookmarklet(() => {
 		addCoverFileName(coverFileNames);
 	});
 
-	if (Object.keys(coverFileNames).length <= 0) {
+	if (coverFileNames.size <= 0) {
 		if (document.querySelector('[cover-data-bookmarklet="executed"]'))
 			return alert(
 				'No new covers were found on this page since the last time this bookmarklet was executed!'
@@ -59,14 +57,12 @@ mangadex.newBookmarklet(() => {
 
 	progressBar.addToDocument();
 
-	for (const manga in coverFileNames) {
-		const skippedCoversLength = skippedCoverFileNames[manga]
-			? skippedCoverFileNames[manga].length
-			: 0;
-		if (coverFileNames[manga].length + skippedCoversLength > 1)
-			mangaIdsForQuery.cover.push(manga);
-		else mangaIdsForQuery.manga.push(manga);
-	}
+	coverFileNames.forEach((fileNames, mangaId) => {
+		const skippedCoversSize = skippedCoverFileNames.get(mangaId)?.size || 0;
+		if (fileNames.size + skippedCoversSize > 1)
+			mangaIdsForQuery.cover.push(mangaId);
+		else mangaIdsForQuery.manga.push(mangaId);
+	});
 
 	getAllCoverData()
 		.then((covers) => {
@@ -92,31 +88,24 @@ mangadex.newBookmarklet(() => {
 						fullSizeImage.onload = () => {
 							const descriptionShowElement = document.createElement('span');
 							const descriptionElement = document.createElement('span');
+							const descriptionShowElementSvg = document.createElementNS(
+								'http://www.w3.org/2000/svg',
+								'svg'
+							);
 							if (cover.attributes.description) {
 								descriptionShowElement.setAttribute(
 									'title',
 									cover.attributes.description
-								);
-								descriptionShowElement.style.setProperty(
-									'position',
-									'absolute'
-								);
-								const descriptionShowElementSvg = document.createElementNS(
-									'http://www.w3.org/2000/svg',
-									'svg'
 								);
 								descriptionShowElementSvg.classList.add(
 									'cover-data-bookmarklet-show-description'
 								);
 								descriptionShowElementSvg.setAttribute('fill', 'none');
 								descriptionShowElementSvg.setAttribute('viewBox', '0 0 24 24');
-								descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
 								descriptionShowElementSvg.setAttribute(
 									'stroke',
 									'currentColor'
 								);
-								descriptionShowElementSvg.style.setProperty('width', '1.5rem');
-								descriptionShowElementSvg.style.setProperty('height', '1.5rem');
 								const descriptionShowElementPath = document.createElementNS(
 									'http://www.w3.org/2000/svg',
 									'path'
@@ -145,7 +134,7 @@ mangadex.newBookmarklet(() => {
 								const descriptionTextElement = document.createElement('span');
 								descriptionTextElement.innerText = cover.attributes.description;
 								descriptionTextElement.style.setProperty('max-height', '100%');
-								descriptionTextElement.style.setProperty('margin', '1rem');
+								descriptionTextElement.style.setProperty('margin', '0.2rem');
 								descriptionTextElement.style.setProperty(
 									'text-align',
 									'center'
@@ -172,11 +161,13 @@ mangadex.newBookmarklet(() => {
 								descriptionElement.appendChild(descriptionTextElement);
 							}
 							const sizeElement = document.createElement('span');
+							const sizeElementText = document.createElement('span');
 							const coverSize = `${fullSizeImage.width}x${fullSizeImage.height}`;
-							sizeElement.innerText = coverSize;
-							sizeElement.setAttribute('title', coverSize);
+							sizeElementText.innerText = coverSize;
+							sizeElementText.setAttribute('title', coverSize);
 							sizeElement.style.setProperty('position', 'absolute');
 							sizeElement.style.setProperty('top', '0');
+							sizeElement.appendChild(sizeElementText);
 							if (element instanceof HTMLImageElement) {
 								sizeElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
 								sizeElement.style.setProperty('color', '#fff');
@@ -196,13 +187,26 @@ mangadex.newBookmarklet(() => {
 								);
 								element.parentElement?.appendChild(sizeElement);
 								if (cover.attributes.description) {
+									descriptionShowElement.style.setProperty(
+										'position',
+										'absolute'
+									);
 									descriptionShowElement.style.setProperty('top', '0');
 									descriptionShowElement.style.setProperty('right', '0');
 									descriptionShowElement.style.setProperty(
 										'padding',
-										'0.5rem 0.5rem 1rem'
+										'0.45rem 0.5rem'
 									);
 									descriptionShowElement.style.setProperty('color', '#fff');
+									descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
+									descriptionShowElementSvg.style.setProperty(
+										'width',
+										'1.5rem'
+									);
+									descriptionShowElementSvg.style.setProperty(
+										'height',
+										'1.5rem'
+									);
 									descriptionElement.style.setProperty(
 										'border-radius',
 										'0.25rem'
@@ -213,7 +217,7 @@ mangadex.newBookmarklet(() => {
 									);
 								}
 							} else {
-								sizeElement.style.setProperty('padding', '0 0.4rem 0.1rem');
+								sizeElement.style.setProperty('padding', '0 0.2rem');
 								sizeElement.style.setProperty(
 									'background-color',
 									'var(--md-accent)'
@@ -228,18 +232,23 @@ mangadex.newBookmarklet(() => {
 								);
 								element.appendChild(sizeElement);
 								if (cover.attributes.description) {
-									descriptionShowElement.style.setProperty('bottom', '0');
-									descriptionShowElement.style.setProperty('left', '0');
-									descriptionShowElement.style.setProperty('padding', '0.1rem');
+									sizeElement.style.setProperty('display', 'flex');
+									sizeElement.style.setProperty('align-items', 'center');
 									descriptionShowElement.style.setProperty(
-										'background-color',
-										'var(--md-accent)'
+										'margin-left',
+										'0.2rem'
 									);
-									descriptionShowElement.style.setProperty(
-										'border-top-right-radius',
-										'4px'
+									descriptionShowElementSvg.setAttribute('stroke-width', '2');
+									descriptionShowElementSvg.style.setProperty(
+										'width',
+										'1.3rem'
 									);
-									element.append(descriptionShowElement, descriptionElement);
+									descriptionShowElementSvg.style.setProperty(
+										'height',
+										'1.3rem'
+									);
+									sizeElement.appendChild(descriptionShowElement);
+									element.appendChild(descriptionElement);
 								}
 							}
 							progressBar.update(
@@ -261,8 +270,7 @@ mangadex.newBookmarklet(() => {
 			for (const endpoint in mangaIdsForQuery) {
 				const isCoverEndpoint = endpoint === 'cover';
 				const mangaIdsForQuerySplit = BM.splitArray(mangaIdsForQuery[endpoint]);
-				for (const index in mangaIdsForQuerySplit) {
-					const ids = mangaIdsForQuerySplit[index];
+				for (const ids of mangaIdsForQuerySplit) {
 					const rsp = await getCoverData(ids as Array<string>, endpoint);
 
 					if (isCoverEndpoint) {

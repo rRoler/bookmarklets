@@ -7,9 +7,7 @@ mangadex.newBookmarklet(
 		if (!description) return;
 		const changedDescriptions: Array<HTMLDivElement> = [];
 		const elements = Array.from(document.querySelectorAll('div.page-sizer'));
-		for (const index in elements) {
-			const element = elements[index];
-
+		for (const element of elements) {
 			if (
 				/blob:https?:\/\/.*mangadex.*\/+[-0-9a-f]{20,}/.test(
 					(

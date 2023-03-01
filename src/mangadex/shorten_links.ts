@@ -39,8 +39,8 @@ mangadex.newBookmarklet(
 				`(ebookjapan.yahoo.co.jp/books/)(${numIdRegex})`,
 				`(www.cdjapan.co.jp/product/)(NEOBK-${numIdRegex})`,
 			];
-			for (const index in regexes) {
-				const regex = getRegex(regexes[index]);
+			for (const regexPattern of regexes) {
+				const regex = getRegex(regexPattern);
 				const websiteUrl = BM.getMatch(link, regex, 1);
 				const id = BM.getMatch(link, regex, 2);
 				if (websiteUrl && id) {
