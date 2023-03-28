@@ -3,8 +3,11 @@ import * as BM from '../shared';
 
 mangadex.newBookmarklet(
 	async () => {
-		const description = prompt('Enter a description:', 'BookWalker');
-		if (!description) return;
+		const defaultDescription = prompt(
+			'Enter a description:',
+			'Volume $volume Cover from BookWalker'
+		);
+		if (!defaultDescription) return;
 		const changedDescriptions: Array<HTMLDivElement> = [];
 		const elements = Array.from(document.querySelectorAll('div.page-sizer'));
 		for (const element of elements) {
@@ -15,9 +18,13 @@ mangadex.newBookmarklet(
 					).style.getPropertyValue('background-image')
 				)
 			) {
+				const coverDescription = parseDescription(
+					element as HTMLDivElement,
+					defaultDescription
+				);
 				const edit = element.parentElement?.querySelector('.volume-edit');
 				edit?.dispatchEvent(new MouseEvent('click'));
-				const changed = await setDescription();
+				const changed = await setDescription(coverDescription);
 				if (changed) changedDescriptions.push(element as HTMLDivElement);
 			}
 		}
@@ -25,7 +32,34 @@ mangadex.newBookmarklet(
 			return alert('No newly added covers with empty descriptions found!');
 		console.log('Changed descriptions:', changedDescriptions);
 
-		function setDescription(): Promise<boolean> {
+		function parseDescription(
+			element: HTMLDivElement,
+			description: string
+		): string {
+			const volumeElement = element.parentElement?.querySelector(
+				'.volume-num input'
+			) as HTMLInputElement;
+			const volume = volumeElement?.value;
+			const languageElement = element.parentElement?.querySelector(
+				'.md-select .md-select-inner-wrap .placeholder-text'
+			) as HTMLDivElement;
+			const language = languageElement?.innerText;
+
+			const masks: Record<string, string> = {
+				volume: volume,
+				language: language,
+			};
+
+			for (const mask in masks) {
+				const maskValue = masks[mask];
+				if (maskValue) {
+					description = description.replaceAll(`$${mask}`, maskValue);
+				}
+			}
+			return description;
+		}
+
+		function setDescription(description: string): Promise<boolean> {
 			return new Promise((resolve) => {
 				const selectors = 'textarea[placeholder="Cover Description"]';
 				BM.waitForElement(selectors).then((element) => {
@@ -35,7 +69,7 @@ mangadex.newBookmarklet(
 							'button.primary'
 						);
 					if (!(element as HTMLTextAreaElement).value)
-						(element as HTMLTextAreaElement).value = description as string;
+						(element as HTMLTextAreaElement).value = description;
 					else changed = false;
 					element.dispatchEvent(new InputEvent('input'));
 					save?.dispatchEvent(new MouseEvent('click'));
