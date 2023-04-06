@@ -12,6 +12,7 @@ mangadex.newBookmarklet(
 					inputs.push(input as HTMLInputElement);
 				});
 		getLinks(3);
+		getLinks(4);
 		getLinks(5);
 
 		const changedLinks: Record<string, string> = {};
@@ -21,7 +22,7 @@ mangadex.newBookmarklet(
 			const getRegex = (regex: RegExp | string) =>
 				new RegExp(`https?://${regex}`);
 			const numIdRegex = '[0-9]+';
-			const numAndLetterIdRegex = '[A-Za-z0-9-]+';
+			const numAndLetterIdRegex = '[A-Za-z0-9-%]+';
 			const asinRegex = '[A-Z0-9]{10}';
 			const regexes: Array<RegExp | string> = [
 				`(anilist.co/manga/)(${numIdRegex})`,
@@ -38,6 +39,7 @@ mangadex.newBookmarklet(
 				`(www.amazon[a-z.]+/gp/product).*(/${asinRegex})`,
 				`(ebookjapan.yahoo.co.jp/books/)(${numIdRegex})`,
 				`(www.cdjapan.co.jp/product/)(NEOBK-${numIdRegex})`,
+				'(.*/)(.*)/$',
 			];
 			for (const regexPattern of regexes) {
 				const regex = getRegex(regexPattern);

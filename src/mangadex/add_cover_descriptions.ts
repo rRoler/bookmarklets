@@ -46,8 +46,8 @@ mangadex.newBookmarklet(
 			const language = languageElement?.innerText;
 
 			const masks: Record<string, string> = {
-				volume: volume,
-				language: language,
+				volume: volume || 'No Volume',
+				language: language || 'No Language',
 			};
 
 			for (const mask in masks) {

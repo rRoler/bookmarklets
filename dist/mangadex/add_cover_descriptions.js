@@ -84,8 +84,8 @@ newBookmarklet(async () => {
     const languageElement = (_element$parentElemen3 = element.parentElement) === null || _element$parentElemen3 === void 0 ? void 0 : _element$parentElemen3.querySelector('.md-select .md-select-inner-wrap .placeholder-text');
     const language = languageElement === null || languageElement === void 0 ? void 0 : languageElement.innerText;
     const masks = {
-      volume: volume,
-      language: language
+      volume: volume || 'No Volume',
+      language: language || 'No Language'
     };
     for (const mask in masks) {
       const maskValue = masks[mask];

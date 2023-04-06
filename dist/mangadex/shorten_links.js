@@ -35,6 +35,7 @@ newBookmarklet(() => {
     });
   };
   getLinks(3);
+  getLinks(4);
   getLinks(5);
   const changedLinks = {};
   inputs.forEach(element => {
@@ -42,9 +43,9 @@ newBookmarklet(() => {
     let shortLink = link;
     const getRegex = regex => new RegExp(`https?://${regex}`);
     const numIdRegex = '[0-9]+';
-    const numAndLetterIdRegex = '[A-Za-z0-9-]+';
+    const numAndLetterIdRegex = '[A-Za-z0-9-%]+';
     const asinRegex = '[A-Z0-9]{10}';
-    const regexes = [`(anilist.co/manga/)(${numIdRegex})`, `(www.anime-planet.com/manga/)(${numAndLetterIdRegex})`, `(kitsu.io/manga/)(${numIdRegex})`, `(kitsu.io/manga/)(${numAndLetterIdRegex})`, `(www.mangaupdates.com/series/)(${numAndLetterIdRegex})`, `(myanimelist.net/manga/)(${numIdRegex})`, `(www.novelupdates.com/series/)(${numAndLetterIdRegex})`, `(bookwalker.jp/series/)(${numIdRegex}/list)`, `(bookwalker.jp/series/)(${numIdRegex})`, `(www.amazon[a-z.]+/).*(dp/${asinRegex})`, `(www.amazon[a-z.]+/).*(gp/product/${asinRegex})`, `(www.amazon[a-z.]+/gp/product).*(/${asinRegex})`, `(ebookjapan.yahoo.co.jp/books/)(${numIdRegex})`, `(www.cdjapan.co.jp/product/)(NEOBK-${numIdRegex})`];
+    const regexes = [`(anilist.co/manga/)(${numIdRegex})`, `(www.anime-planet.com/manga/)(${numAndLetterIdRegex})`, `(kitsu.io/manga/)(${numIdRegex})`, `(kitsu.io/manga/)(${numAndLetterIdRegex})`, `(www.mangaupdates.com/series/)(${numAndLetterIdRegex})`, `(myanimelist.net/manga/)(${numIdRegex})`, `(www.novelupdates.com/series/)(${numAndLetterIdRegex})`, `(bookwalker.jp/series/)(${numIdRegex}/list)`, `(bookwalker.jp/series/)(${numIdRegex})`, `(www.amazon[a-z.]+/).*(dp/${asinRegex})`, `(www.amazon[a-z.]+/).*(gp/product/${asinRegex})`, `(www.amazon[a-z.]+/gp/product).*(/${asinRegex})`, `(ebookjapan.yahoo.co.jp/books/)(${numIdRegex})`, `(www.cdjapan.co.jp/product/)(NEOBK-${numIdRegex})`, '(.*/)(.*)/$'];
     for (const regexPattern of regexes) {
       const regex = getRegex(regexPattern);
       const websiteUrl = getMatch(link, regex, 1);
