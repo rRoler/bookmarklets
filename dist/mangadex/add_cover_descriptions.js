@@ -85,7 +85,8 @@ newBookmarklet(async () => {
     const language = languageElement === null || languageElement === void 0 ? void 0 : languageElement.innerText;
     const masks = {
       volume: volume || 'No Volume',
-      language: language || 'No Language'
+      language: language || 'No Language',
+      nl: '\n'
     };
     for (const mask in masks) {
       const maskValue = masks[mask];

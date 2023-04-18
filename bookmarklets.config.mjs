@@ -17,12 +17,13 @@ const bookmarklets = {
 					'**Needs to be executed after the "Show MangaDex Cover Data" bookmarklet.** Shows all cover descriptions.',
 			},
 			add_cover_descriptions: {
-				version: '1.3',
+				version: '1.4',
 				name: 'Add Cover Descriptions',
 				description:
 					'Requires the title edit and cover edit permissions. Adds cover descriptions to all newly added covers with no description on the title edit page.' +
 					'<br>$volume = cover volume number' +
-					'<br>$language = cover language',
+					'<br>$language = cover language' +
+					'<br>$nl = new line',
 			},
 			search_missing_links: {
 				version: '1.4',
