@@ -32,7 +32,7 @@ const bookmarklets = {
 					'Opens a new tab with a search for each missing tracking or retail link from a title page.',
 			},
 			shorten_links: {
-				version: '1.5',
+				version: '1.6',
 				name: 'Shorten Links',
 				description:
 					'Requires the title edit permissions. Makes tracking, retail and some official site links from a title edit page shorter/prettier.',

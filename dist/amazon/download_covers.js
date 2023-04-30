@@ -3,7 +3,7 @@
  * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/amazon/download_covers.dependencies.txt
  */
 
-void function(){function newBookmarklet$1(websiteRegex, code) {
+(function(){function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
   code();
 }
@@ -593,4 +593,4 @@ newBookmarklet(() => {
       });
     }
   }
-});}();
+});})();

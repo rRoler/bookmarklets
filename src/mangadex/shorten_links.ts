@@ -31,7 +31,6 @@ mangadex.newBookmarklet(
 				`(kitsu.io/manga/)(${numAndLetterIdRegex})`,
 				`(www.mangaupdates.com/series/)(${numAndLetterIdRegex})`,
 				`(myanimelist.net/manga/)(${numIdRegex})`,
-				`(www.novelupdates.com/series/)(${numAndLetterIdRegex})`,
 				`(bookwalker.jp/series/)(${numIdRegex}/list)`,
 				`(bookwalker.jp/series/)(${numIdRegex})`,
 				`(www.amazon[a-z.]+/).*(dp/${asinRegex})`,

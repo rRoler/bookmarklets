@@ -3,7 +3,7 @@
  * Third party licenses: https://raw.githubusercontent.com/rRoler/bookmarklets/main/dist/mangadex/show_all_cover_descriptions.dependencies.txt
  */
 
-void function(){function newBookmarklet$1(websiteRegex, code) {
+(function(){function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
   code();
 }
@@ -30,4 +30,4 @@ newBookmarklet(() => {
   const showDescriptionButtons = document.querySelectorAll('.cover-data-bookmarklet-show-description');
   if (showDescriptionButtons.length <= 0) return alert('No covers with a description found!');
   showDescriptionButtons.forEach(element => element.dispatchEvent(new MouseEvent('click')));
-});}();
+});})();
