@@ -52,5 +52,5 @@ mangadex.newBookmarklet(
 			);
 		});
 	},
-	{ titlePage: true }
+	{ titlePage: true, createPage: true }
 );

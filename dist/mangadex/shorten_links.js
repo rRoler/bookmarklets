@@ -19,8 +19,9 @@ function parseStorage(key) {
 const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
 const newBookmarklet = (code, settings = {}) => {
   newBookmarklet$1('mangadex.org|canary.mangadex.dev', () => {
-    if (settings.titlePage && !titleId) return alert('This is not a title page!');
-    if (settings.editPage && !/\/edit\//.test(window.location.pathname)) return alert('This is not an edit page!');
+    const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
+    if (settings.titlePage && !titleId && !isCreatePage) return alert('This is not a title page!');
+    if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert('This is not an edit page!');
     code();
   });
 };
@@ -64,5 +65,6 @@ newBookmarklet(() => {
   console.log('Changed links:', changedLinks);
 }, {
   titlePage: true,
-  editPage: true
+  editPage: true,
+  createPage: true
 });})();

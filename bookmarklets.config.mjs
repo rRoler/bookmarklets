@@ -17,7 +17,7 @@ const bookmarklets = {
 					'**Needs to be executed after the "Show MangaDex Cover Data" bookmarklet.** Shows all cover descriptions.',
 			},
 			add_cover_descriptions: {
-				version: '1.4',
+				version: '1.5',
 				name: 'Add Cover Descriptions',
 				description:
 					'Requires the title edit and cover edit permissions. Adds cover descriptions to all newly added covers with no description on the title edit page.' +
@@ -26,13 +26,13 @@ const bookmarklets = {
 					'<br>$nl = new line',
 			},
 			search_missing_links: {
-				version: '1.4',
+				version: '1.5',
 				name: 'Search Missing Links',
 				description:
 					'Opens a new tab with a search for each missing tracking or retail link from a title page.',
 			},
 			shorten_links: {
-				version: '1.6',
+				version: '1.7',
 				name: 'Shorten Links',
 				description:
 					'Requires the title edit permissions. Makes tracking, retail and some official site links from a title edit page shorter/prettier.',
@@ -43,7 +43,7 @@ const bookmarklets = {
 				description: 'Opens all links from a title page.',
 			},
 			del_covers_by_lang: {
-				version: '1.2',
+				version: '1.3',
 				name: 'Delete Covers by Language',
 				description:
 					'Requires the title edit and cover delete permissions. Removes all covers in a given language from the title edit page.',

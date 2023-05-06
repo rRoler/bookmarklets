@@ -29,5 +29,5 @@ mangadex.newBookmarklet(
 			return alert('No covers in given language found!');
 		console.log('Deleted covers:', deletedCovers);
 	},
-	{ titlePage: true, editPage: true }
+	{ titlePage: true, editPage: true, createPage: true }
 );

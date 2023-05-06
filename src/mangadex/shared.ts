@@ -8,12 +8,23 @@ const isDraft = /\?draft=true/.test(window.location.search);
 
 const newBookmarklet = (
 	code: VoidFunction,
-	settings: { titlePage?: boolean; editPage?: boolean } = {}
+	settings: {
+		titlePage?: boolean;
+		createPage?: boolean;
+		editPage?: boolean;
+	} = {}
 ): void => {
 	BM.newBookmarklet('mangadex.org|canary.mangadex.dev', () => {
-		if (settings.titlePage && !titleId)
+		const isCreatePage =
+			settings.createPage && /\/create\//.test(window.location.pathname);
+
+		if (settings.titlePage && !titleId && !isCreatePage)
 			return alert('This is not a title page!');
-		if (settings.editPage && !/\/edit\//.test(window.location.pathname))
+		if (
+			settings.editPage &&
+			!/\/edit\//.test(window.location.pathname) &&
+			!isCreatePage
+		)
 			return alert('This is not an edit page!');
 		code();
 	});
