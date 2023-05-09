@@ -17,9 +17,9 @@ function parseStorage(key) {
 }
 
 const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
-const isDraft = /\?draft=true/.test(window.location.search);
+const isDraft = /draft=true/.test(window.location.search);
 const newBookmarklet = (code, settings = {}) => {
-  newBookmarklet$1('mangadex.org|canary.mangadex.dev', () => {
+  newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
     if (settings.titlePage && !titleId && !isCreatePage) return alert('This is not a title page!');
     if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert('This is not an edit page!');
@@ -67,7 +67,8 @@ newBookmarklet(() => {
     } catch (e) {
       console.debug('No alt titles found');
     }
-    let title = originalTitle ? originalTitle[originalLang] : titleInfo.data.attributes.title.en || '';
+    const mainTitleLang = Object.keys(titleInfo.data.attributes.title)[0];
+    let title = originalTitle ? originalTitle[originalLang] : titleInfo.data.attributes.title[mainTitleLang] || '';
     title = prompt('Enter a title to search for', title);
     if (!title) return;
     missingWebsites.forEach(website => window.open(websites[website] + title, '_blank', 'noopener,noreferrer'));

@@ -4,7 +4,7 @@ import * as Api from './types/api';
 const titleId =
 	BM.getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) ||
 	BM.getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
-const isDraft = /\?draft=true/.test(window.location.search);
+const isDraft = /draft=true/.test(window.location.search);
 
 const newBookmarklet = (
 	code: VoidFunction,
@@ -14,7 +14,7 @@ const newBookmarklet = (
 		editPage?: boolean;
 	} = {}
 ): void => {
-	BM.newBookmarklet('mangadex.org|canary.mangadex.dev', () => {
+	BM.newBookmarklet('^mangadex.org|canary.mangadex.dev', () => {
 		const isCreatePage =
 			settings.createPage && /\/create\//.test(window.location.pathname);
 

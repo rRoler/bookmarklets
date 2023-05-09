@@ -41,9 +41,10 @@ mangadex.newBookmarklet(
 			} catch (e) {
 				console.debug('No alt titles found');
 			}
+			const mainTitleLang = Object.keys(titleInfo.data.attributes.title)[0];
 			let title: string | null = originalTitle
 				? originalTitle[originalLang]
-				: titleInfo.data.attributes.title.en || '';
+				: titleInfo.data.attributes.title[mainTitleLang] || '';
 			title = prompt('Enter a title to search for', title);
 			if (!title) return;
 
