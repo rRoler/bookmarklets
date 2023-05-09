@@ -140,98 +140,31 @@ newBookmarklet(() => {
         if (!coverManga) return;
         if (new RegExp(`${coverManga.id}/${cover.attributes.fileName}`).test(imageSource)) {
           const fullSizeImage = new Image();
+          fullSizeImage.style.setProperty('opacity', '0');
+          fullSizeImage.style.setProperty('position', 'absolute');
+          fullSizeImage.style.setProperty('top', '-10000px');
+          fullSizeImage.style.setProperty('left', '-10000px');
+          fullSizeImage.style.setProperty('z-index', '-10000');
+          fullSizeImage.style.setProperty('pointer-events', 'none');
+          document.body.appendChild(fullSizeImage);
+          try {
+            new ResizeObserver((entries, observer) => {
+              if (fullSizeImage.naturalWidth > 0 && fullSizeImage.naturalHeight > 0) {
+                fullSizeImage.remove();
+                observer.disconnect();
+                displayCoverData(element, fullSizeImage, cover);
+                progressBar.update(++addedCoverData / coverElements.length * 100);
+                fullSizeImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
+              }
+            }).observe(fullSizeImage);
+          } catch (e) {
+            fullSizeImage.onload = () => {
+              fullSizeImage.remove();
+              displayCoverData(element, fullSizeImage, cover);
+              progressBar.update(++addedCoverData / coverElements.length * 100);
+            };
+          }
           fullSizeImage.src = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
-          fullSizeImage.onload = () => {
-            const descriptionShowElement = document.createElement('span');
-            const descriptionElement = document.createElement('span');
-            const descriptionShowElementSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            if (cover.attributes.description) {
-              descriptionShowElement.setAttribute('title', cover.attributes.description);
-              descriptionShowElementSvg.classList.add('cover-data-bookmarklet-show-description');
-              descriptionShowElementSvg.setAttribute('fill', 'none');
-              descriptionShowElementSvg.setAttribute('viewBox', '0 0 24 24');
-              descriptionShowElementSvg.setAttribute('stroke', 'currentColor');
-              const descriptionShowElementPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              descriptionShowElementPath.setAttribute('stroke-linecap', 'round');
-              descriptionShowElementPath.setAttribute('stroke-linejoin', 'round');
-              descriptionShowElementPath.setAttribute('d', 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z');
-              descriptionShowElementSvg.appendChild(descriptionShowElementPath);
-              descriptionShowElementSvg.addEventListener('click', e => {
-                e.stopPropagation();
-                e.preventDefault();
-                descriptionElement.style.setProperty('display', 'flex');
-              });
-              descriptionShowElement.appendChild(descriptionShowElementSvg);
-              const descriptionTextElement = document.createElement('span');
-              descriptionTextElement.innerText = cover.attributes.description;
-              descriptionTextElement.style.setProperty('max-height', '100%');
-              descriptionTextElement.style.setProperty('margin', '0.2rem');
-              descriptionTextElement.style.setProperty('text-align', 'center');
-              descriptionElement.style.setProperty('position', 'absolute');
-              descriptionElement.style.setProperty('width', '100%');
-              descriptionElement.style.setProperty('height', '100%');
-              descriptionElement.style.setProperty('overflow-y', 'auto');
-              descriptionElement.style.setProperty('display', 'none');
-              descriptionElement.style.setProperty('align-items', 'center');
-              descriptionElement.style.setProperty('justify-content', 'center');
-              descriptionElement.style.setProperty('background-color', 'var(--md-accent)');
-              descriptionElement.addEventListener('click', e => {
-                e.stopPropagation();
-                e.preventDefault();
-                descriptionElement.style.setProperty('display', 'none');
-              });
-              descriptionElement.appendChild(descriptionTextElement);
-            }
-            const sizeElement = document.createElement('span');
-            const sizeElementText = document.createElement('span');
-            const coverSize = `${fullSizeImage.width}x${fullSizeImage.height}`;
-            sizeElementText.innerText = coverSize;
-            sizeElementText.setAttribute('title', coverSize);
-            sizeElement.style.setProperty('position', 'absolute');
-            sizeElement.style.setProperty('top', '0');
-            sizeElement.appendChild(sizeElementText);
-            if (element instanceof HTMLImageElement) {
-              var _element$parentElemen;
-              sizeElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
-              sizeElement.style.setProperty('color', '#fff');
-              sizeElement.style.setProperty('left', '0');
-              sizeElement.style.setProperty('width', '100%');
-              sizeElement.style.setProperty('background', 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))');
-              sizeElement.style.setProperty('border-top-right-radius', '0.25rem');
-              sizeElement.style.setProperty('border-top-left-radius', '0.25rem');
-              (_element$parentElemen = element.parentElement) === null || _element$parentElemen === void 0 ? void 0 : _element$parentElemen.appendChild(sizeElement);
-              if (cover.attributes.description) {
-                var _element$parentElemen2;
-                descriptionShowElement.style.setProperty('position', 'absolute');
-                descriptionShowElement.style.setProperty('top', '0');
-                descriptionShowElement.style.setProperty('right', '0');
-                descriptionShowElement.style.setProperty('padding', '0.45rem 0.5rem');
-                descriptionShowElement.style.setProperty('color', '#fff');
-                descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
-                descriptionShowElementSvg.style.setProperty('width', '1.5rem');
-                descriptionShowElementSvg.style.setProperty('height', '1.5rem');
-                descriptionElement.style.setProperty('border-radius', '0.25rem');
-                (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 ? void 0 : _element$parentElemen2.append(descriptionShowElement, descriptionElement);
-              }
-            } else {
-              sizeElement.style.setProperty('padding', '0 0.2rem');
-              sizeElement.style.setProperty('background-color', 'var(--md-accent)');
-              sizeElement.style.setProperty('border-bottom-left-radius', '4px');
-              sizeElement.style.setProperty('border-bottom-right-radius', '4px');
-              element.appendChild(sizeElement);
-              if (cover.attributes.description) {
-                sizeElement.style.setProperty('display', 'flex');
-                sizeElement.style.setProperty('align-items', 'center');
-                descriptionShowElement.style.setProperty('margin-left', '0.2rem');
-                descriptionShowElementSvg.setAttribute('stroke-width', '2');
-                descriptionShowElementSvg.style.setProperty('width', '1.3rem');
-                descriptionShowElementSvg.style.setProperty('height', '1.3rem');
-                sizeElement.appendChild(descriptionShowElement);
-                element.appendChild(descriptionElement);
-              }
-            }
-            progressBar.update(++addedCoverData / coverElements.length * 100);
-          };
         }
       });
     });
@@ -239,6 +172,96 @@ newBookmarklet(() => {
     console.error(e);
     alert('Failed to fetch cover data!');
   });
+  function displayCoverData(element, fullSizeImage, cover) {
+    const descriptionShowElement = document.createElement('span');
+    const descriptionElement = document.createElement('span');
+    const descriptionShowElementSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    if (cover.attributes.description) {
+      descriptionShowElement.setAttribute('title', cover.attributes.description);
+      descriptionShowElementSvg.classList.add('cover-data-bookmarklet-show-description');
+      descriptionShowElementSvg.setAttribute('fill', 'none');
+      descriptionShowElementSvg.setAttribute('viewBox', '0 0 24 24');
+      descriptionShowElementSvg.setAttribute('stroke', 'currentColor');
+      const descriptionShowElementPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      descriptionShowElementPath.setAttribute('stroke-linecap', 'round');
+      descriptionShowElementPath.setAttribute('stroke-linejoin', 'round');
+      descriptionShowElementPath.setAttribute('d', 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z');
+      descriptionShowElementSvg.appendChild(descriptionShowElementPath);
+      descriptionShowElementSvg.addEventListener('click', e => {
+        e.stopPropagation();
+        e.preventDefault();
+        descriptionElement.style.setProperty('display', 'flex');
+      });
+      descriptionShowElement.appendChild(descriptionShowElementSvg);
+      const descriptionTextElement = document.createElement('span');
+      descriptionTextElement.innerText = cover.attributes.description;
+      descriptionTextElement.style.setProperty('max-height', '100%');
+      descriptionTextElement.style.setProperty('margin', '0.2rem');
+      descriptionTextElement.style.setProperty('text-align', 'center');
+      descriptionElement.style.setProperty('position', 'absolute');
+      descriptionElement.style.setProperty('width', '100%');
+      descriptionElement.style.setProperty('height', '100%');
+      descriptionElement.style.setProperty('overflow-y', 'auto');
+      descriptionElement.style.setProperty('display', 'none');
+      descriptionElement.style.setProperty('align-items', 'center');
+      descriptionElement.style.setProperty('justify-content', 'center');
+      descriptionElement.style.setProperty('background-color', 'var(--md-accent)');
+      descriptionElement.addEventListener('click', e => {
+        e.stopPropagation();
+        e.preventDefault();
+        descriptionElement.style.setProperty('display', 'none');
+      });
+      descriptionElement.appendChild(descriptionTextElement);
+    }
+    const sizeElement = document.createElement('span');
+    const sizeElementText = document.createElement('span');
+    const coverSize = `${fullSizeImage.naturalWidth}x${fullSizeImage.naturalHeight}`;
+    sizeElementText.innerText = coverSize;
+    sizeElementText.setAttribute('title', coverSize);
+    sizeElement.style.setProperty('position', 'absolute');
+    sizeElement.style.setProperty('top', '0');
+    sizeElement.appendChild(sizeElementText);
+    if (element instanceof HTMLImageElement) {
+      var _element$parentElemen;
+      sizeElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
+      sizeElement.style.setProperty('color', '#fff');
+      sizeElement.style.setProperty('left', '0');
+      sizeElement.style.setProperty('width', '100%');
+      sizeElement.style.setProperty('background', 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))');
+      sizeElement.style.setProperty('border-top-right-radius', '0.25rem');
+      sizeElement.style.setProperty('border-top-left-radius', '0.25rem');
+      (_element$parentElemen = element.parentElement) === null || _element$parentElemen === void 0 ? void 0 : _element$parentElemen.appendChild(sizeElement);
+      if (cover.attributes.description) {
+        var _element$parentElemen2;
+        descriptionShowElement.style.setProperty('position', 'absolute');
+        descriptionShowElement.style.setProperty('top', '0');
+        descriptionShowElement.style.setProperty('right', '0');
+        descriptionShowElement.style.setProperty('padding', '0.45rem 0.5rem');
+        descriptionShowElement.style.setProperty('color', '#fff');
+        descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
+        descriptionShowElementSvg.style.setProperty('width', '1.5rem');
+        descriptionShowElementSvg.style.setProperty('height', '1.5rem');
+        descriptionElement.style.setProperty('border-radius', '0.25rem');
+        (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 ? void 0 : _element$parentElemen2.append(descriptionShowElement, descriptionElement);
+      }
+    } else {
+      sizeElement.style.setProperty('padding', '0 0.2rem');
+      sizeElement.style.setProperty('background-color', 'var(--md-accent)');
+      sizeElement.style.setProperty('border-bottom-left-radius', '4px');
+      sizeElement.style.setProperty('border-bottom-right-radius', '4px');
+      element.appendChild(sizeElement);
+      if (cover.attributes.description) {
+        sizeElement.style.setProperty('display', 'flex');
+        sizeElement.style.setProperty('align-items', 'center');
+        descriptionShowElement.style.setProperty('margin-left', '0.2rem');
+        descriptionShowElementSvg.setAttribute('stroke-width', '2');
+        descriptionShowElementSvg.style.setProperty('width', '1.3rem');
+        descriptionShowElementSvg.style.setProperty('height', '1.3rem');
+        sizeElement.appendChild(descriptionShowElement);
+        element.appendChild(descriptionElement);
+      }
+    }
+  }
   function getAllCoverData() {
     const covers = [];
     async function awaitAllCoverData() {
