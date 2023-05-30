@@ -219,7 +219,7 @@ newBookmarklet(() => {
         const coverIds = [];
         document.querySelectorAll('span[cover-data-cover-id]').forEach(element => {
           const coverId = element.getAttribute('cover-data-cover-id');
-          if (coverId) coverIds.push(coverId);
+          if (coverId && !coverIds.includes(coverId)) coverIds.push(coverId);
         });
         copyId(coverIds.join(' '));
       } else copyId(cover.id);
