@@ -11,31 +11,14 @@ function getMatch(string, regex, index = 0) {
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
-function waitForElement(querySelectors) {
+function waitForElement(querySelectors, noElement = false) {
   let element = document.body.querySelector(querySelectors);
   return new Promise(resolve => {
-    if (element) return resolve(element);
+    if (noElement ? !element : element) return resolve(element);
     const observer = new MutationObserver(() => {
       element = document.body.querySelector(querySelectors);
-      if (element) {
+      if (noElement ? !element : element) {
         resolve(element);
-        observer.disconnect();
-      }
-    });
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  });
-}
-function waitForNoElement(querySelectors) {
-  let element = document.body.querySelector(querySelectors);
-  return new Promise(resolve => {
-    if (!element) return resolve();
-    const observer = new MutationObserver(() => {
-      element = document.body.querySelector(querySelectors);
-      if (!element) {
-        resolve();
         observer.disconnect();
       }
     });
@@ -77,7 +60,7 @@ newBookmarklet(async () => {
     }
   }
   if (changedDescriptions.length <= 0) return alert('No newly added covers with empty descriptions found!');
-  console.log('Changed descriptions:', changedDescriptions);
+  console.log('Added descriptions:', changedDescriptions);
   function parseDescription(element, description) {
     var _element$parentElemen2, _element$parentElemen3;
     const volumeElement = (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 ? void 0 : _element$parentElemen2.querySelector('.volume-num input');
@@ -103,11 +86,11 @@ newBookmarklet(async () => {
       waitForElement(selectors).then(element => {
         var _element$parentElemen4, _element$parentElemen5, _element$parentElemen6, _element$parentElemen7;
         let changed = true;
-        const save = (_element$parentElemen4 = element.parentElement) === null || _element$parentElemen4 === void 0 ? void 0 : (_element$parentElemen5 = _element$parentElemen4.parentElement) === null || _element$parentElemen5 === void 0 ? void 0 : (_element$parentElemen6 = _element$parentElemen5.parentElement) === null || _element$parentElemen6 === void 0 ? void 0 : (_element$parentElemen7 = _element$parentElemen6.parentElement) === null || _element$parentElemen7 === void 0 ? void 0 : _element$parentElemen7.querySelector('button.primary');
+        const save = element === null || element === void 0 ? void 0 : (_element$parentElemen4 = element.parentElement) === null || _element$parentElemen4 === void 0 ? void 0 : (_element$parentElemen5 = _element$parentElemen4.parentElement) === null || _element$parentElemen5 === void 0 ? void 0 : (_element$parentElemen6 = _element$parentElemen5.parentElement) === null || _element$parentElemen6 === void 0 ? void 0 : (_element$parentElemen7 = _element$parentElemen6.parentElement) === null || _element$parentElemen7 === void 0 ? void 0 : _element$parentElemen7.querySelector('button.primary');
         if (!element.value) element.value = description;else changed = false;
-        element.dispatchEvent(new InputEvent('input'));
+        element === null || element === void 0 ? void 0 : element.dispatchEvent(new InputEvent('input'));
         save === null || save === void 0 ? void 0 : save.dispatchEvent(new MouseEvent('click'));
-        waitForNoElement(selectors).then(() => resolve(changed));
+        waitForElement(selectors, true).then(() => resolve(changed));
       });
     });
   }

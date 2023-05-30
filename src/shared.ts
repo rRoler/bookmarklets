@@ -26,35 +26,18 @@ function splitArray(
 	return resArray;
 }
 
-function waitForElement(querySelectors: string): Promise<Node> {
+function waitForElement(
+	querySelectors: string,
+	noElement = false
+): Promise<Element | null> {
 	let element = document.body.querySelector(querySelectors);
 	return new Promise((resolve) => {
-		if (element) return resolve(element);
+		if (noElement ? !element : element) return resolve(element);
 
 		const observer = new MutationObserver(() => {
 			element = document.body.querySelector(querySelectors);
-			if (element) {
+			if (noElement ? !element : element) {
 				resolve(element);
-				observer.disconnect();
-			}
-		});
-
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true,
-		});
-	});
-}
-
-function waitForNoElement(querySelectors: string): Promise<void> {
-	let element = document.body.querySelector(querySelectors);
-	return new Promise((resolve) => {
-		if (!element) return resolve();
-
-		const observer = new MutationObserver(() => {
-			element = document.body.querySelector(querySelectors);
-			if (!element) {
-				resolve();
 				observer.disconnect();
 			}
 		});
@@ -71,11 +54,34 @@ function parseStorage(key: string) {
 	if (value) return JSON.parse(value);
 }
 
+function createSVG({
+	fill = 'none',
+	viewBox = '0 0 24 24',
+	stroke = 'currentColor',
+	strokeLinecap = 'round',
+	strokeLinejoin = 'round',
+	d = '',
+}) {
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.setAttribute('fill', fill);
+	svg.setAttribute('viewBox', viewBox);
+	svg.setAttribute('stroke', stroke);
+	const svgPath = document.createElementNS(
+		'http://www.w3.org/2000/svg',
+		'path'
+	);
+	svgPath.setAttribute('stroke-linecap', strokeLinecap);
+	svgPath.setAttribute('stroke-linejoin', strokeLinejoin);
+	svgPath.setAttribute('d', d);
+	svg.appendChild(svgPath);
+	return svg;
+}
+
 export {
 	newBookmarklet,
 	getMatch,
 	splitArray,
 	waitForElement,
-	waitForNoElement,
 	parseStorage,
+	createSVG,
 };

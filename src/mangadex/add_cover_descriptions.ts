@@ -30,7 +30,7 @@ mangadex.newBookmarklet(
 		}
 		if (changedDescriptions.length <= 0)
 			return alert('No newly added covers with empty descriptions found!');
-		console.log('Changed descriptions:', changedDescriptions);
+		console.log('Added descriptions:', changedDescriptions);
 
 		function parseDescription(
 			element: HTMLDivElement,
@@ -66,15 +66,15 @@ mangadex.newBookmarklet(
 				BM.waitForElement(selectors).then((element) => {
 					let changed = true;
 					const save =
-						element.parentElement?.parentElement?.parentElement?.parentElement?.querySelector(
+						element?.parentElement?.parentElement?.parentElement?.parentElement?.querySelector(
 							'button.primary'
 						);
 					if (!(element as HTMLTextAreaElement).value)
 						(element as HTMLTextAreaElement).value = description;
 					else changed = false;
-					element.dispatchEvent(new InputEvent('input'));
+					element?.dispatchEvent(new InputEvent('input'));
 					save?.dispatchEvent(new MouseEvent('click'));
-					BM.waitForNoElement(selectors).then(() => resolve(changed));
+					BM.waitForElement(selectors, true).then(() => resolve(changed));
 				});
 			});
 		}
