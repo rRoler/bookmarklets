@@ -26,6 +26,13 @@ mangadex.newBookmarklet(
 		}
 
 		mangadex.fetchTitleInfo().then((titleInfo: Api.MangaResponse) => {
+			if (
+				!titleInfo.data.attributes.tags.some(
+					(tag) => tag.attributes.name.en === 'Adaptation'
+				)
+			)
+				delete websites.nu;
+
 			const missingWebsites = Object.keys(websites).filter(
 				(website) => !titleInfo.data.attributes.links[website]
 			);

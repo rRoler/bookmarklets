@@ -58,6 +58,7 @@ newBookmarklet(() => {
     return;
   }
   fetchTitleInfo().then(titleInfo => {
+    if (!titleInfo.data.attributes.tags.some(tag => tag.attributes.name.en === 'Adaptation')) delete websites.nu;
     const missingWebsites = Object.keys(websites).filter(website => !titleInfo.data.attributes.links[website]);
     if (missingWebsites.length <= 0) return alert('All links are already added!');
     const originalLang = titleInfo.data.attributes.originalLanguage;

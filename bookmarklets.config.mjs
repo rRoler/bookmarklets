@@ -22,13 +22,13 @@ const bookmarklets = {
 					'<br>$nl = new line',
 			},
 			search_missing_links: {
-				version: '1.6',
+				version: '1.7',
 				name: 'Search Missing Links',
 				description:
 					'Opens a new tab with a search for each missing tracking or retail link from a title page.',
 			},
 			shorten_links: {
-				version: '1.8',
+				version: '1.9',
 				name: 'Shorten Links',
 				description:
 					'Requires the title edit permissions. Makes tracking, retail and some official site links from a title edit page shorter/prettier.',

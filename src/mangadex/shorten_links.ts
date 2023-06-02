@@ -19,29 +19,25 @@ mangadex.newBookmarklet(
 		inputs.forEach((element) => {
 			const link = element.value;
 			let shortLink = link;
-			const getRegex = (regex: RegExp | string) =>
-				new RegExp(`https?://${regex}`);
 			const numIdRegex = '[0-9]+';
 			const numAndLetterIdRegex = '[A-Za-z0-9-%]+';
 			const asinRegex = '[A-Z0-9]{10}';
 			const regexes: Array<RegExp | string> = [
 				`(anilist.co/manga/)(${numIdRegex})`,
 				`(www.anime-planet.com/manga/)(${numAndLetterIdRegex})`,
-				`(kitsu.io/manga/)(${numIdRegex})`,
 				`(kitsu.io/manga/)(${numAndLetterIdRegex})`,
 				`(www.mangaupdates.com/series/)(${numAndLetterIdRegex})`,
 				`(myanimelist.net/manga/)(${numIdRegex})`,
-				`(bookwalker.jp/series/)(${numIdRegex}/list)`,
-				`(bookwalker.jp/series/)(${numIdRegex})`,
-				`(www.amazon[a-z.]+/).*(dp/${asinRegex})`,
-				`(www.amazon[a-z.]+/).*(gp/product/${asinRegex})`,
+				`(bookwalker.jp/series/)(${numIdRegex}(?:/list)?)`,
+				`(bookwalker.jp/)(${numAndLetterIdRegex})`,
+				`(www.amazon[a-z.]+/).*((?:dp/|gp/product/|kindle-dbs/product/)${asinRegex})`,
 				`(www.amazon[a-z.]+/gp/product).*(/${asinRegex})`,
 				`(ebookjapan.yahoo.co.jp/books/)(${numIdRegex})`,
 				`(www.cdjapan.co.jp/product/)(NEOBK-${numIdRegex})`,
 				'(.*/)(.*)/$',
 			];
 			for (const regexPattern of regexes) {
-				const regex = getRegex(regexPattern);
+				const regex = new RegExp(`(?:https?://${regexPattern}.*)$`);
 				const websiteUrl = BM.getMatch(link, regex, 1);
 				const id = BM.getMatch(link, regex, 2);
 				if (websiteUrl && id) {
