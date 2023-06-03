@@ -5,12 +5,13 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '2.7',
+				version: '2.8',
 				name: 'Show Cover Data',
 				description:
-					'Display cover sizes, descriptions and an icon to copy cover ids. ' +
-					'<br>If the cover description exists, an icon will be shown that can be clicked or hovered to display the description. ' +
-					'<br>Hold shift while clicking an icon to show/hide all cover descriptions or copy all ids.',
+					'Display cover sizes and descriptions. ' +
+					'<br>If the cover description exists, an info icon will be shown that can be clicked or hovered to show the description (click on the description to hide it again)' +
+					'<br>Hold shift while clicking an info icon to show all cover descriptions or hold shift while clicking a cover description to hide all cover descriptions. ' +
+					'<br>Click the cover size element to copy the cover id (hold shift while clicking it to copy all ids).',
 			},
 			add_cover_descriptions: {
 				version: '1.7',

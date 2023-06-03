@@ -153,6 +153,8 @@ newBookmarklet(() => {
   getAllCoverData().then(covers => {
     let addedCoverData = 0;
     const coverImagesContainer = document.createElement('div');
+    coverImagesContainer.style.setProperty('width', 'fit-content');
+    coverImagesContainer.style.setProperty('height', 'fit-content');
     coverImagesContainer.style.setProperty('opacity', '0');
     coverImagesContainer.style.setProperty('position', 'absolute');
     coverImagesContainer.style.setProperty('top', '-10000px');
@@ -197,34 +199,13 @@ newBookmarklet(() => {
     alert('Failed to fetch cover data!');
   });
   function displayCoverData(element, fullSizeImageWidth, fullSizeImageHeight, cover) {
+    element.setAttribute('cover-data-cover-id', cover.id);
     const descriptionShowElement = document.createElement('span');
     const descriptionElement = document.createElement('span');
     const descriptionShowElementSvg = createSVG({
       d: 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z'
     });
     descriptionElement.classList.add('cover-data-bookmarklet-description');
-    const idCopyElement = document.createElement('span');
-    idCopyElement.setAttribute('cover-data-cover-id', cover.id);
-    idCopyElement.setAttribute('title', 'Copy Cover ID');
-    const idCopyElementSvg = createSVG({
-      d: 'M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z'
-    });
-    idCopyElementSvg.addEventListener('click', event => {
-      const copyId = ids => {
-        navigator.clipboard.writeText(ids).then(() => console.debug(`Copied cover ids: ${ids}`), () => console.error(`Failed to copy cover ids: ${ids}`)).catch(console.error);
-      };
-      event.stopPropagation();
-      event.preventDefault();
-      if (event.shiftKey) {
-        const coverIds = [];
-        document.querySelectorAll('span[cover-data-cover-id]').forEach(element => {
-          const coverId = element.getAttribute('cover-data-cover-id');
-          if (coverId && !coverIds.includes(coverId)) coverIds.push(coverId);
-        });
-        copyId(coverIds.join(' '));
-      } else copyId(cover.id);
-    });
-    idCopyElement.appendChild(idCopyElementSvg);
     if (cover.attributes.description) {
       const showDescriptions = (event, show = true) => {
         const showDescription = element => element.style.setProperty('display', show ? 'flex' : 'none');
@@ -256,7 +237,22 @@ newBookmarklet(() => {
     const sizeElementText = document.createElement('span');
     const coverSize = `${fullSizeImageWidth}x${fullSizeImageHeight}`;
     sizeElementText.innerText = coverSize;
-    sizeElementText.setAttribute('title', coverSize);
+    sizeElementText.setAttribute('title', coverSize + '\n(click to copy id)');
+    sizeElementText.addEventListener('click', event => {
+      const copyId = ids => {
+        navigator.clipboard.writeText(ids).then(() => console.debug(`Copied cover ids: ${ids}`), () => console.error(`Failed to copy cover ids: ${ids}`)).catch(console.error);
+      };
+      event.stopPropagation();
+      event.preventDefault();
+      if (event.shiftKey) {
+        const coverIds = [];
+        document.querySelectorAll('[cover-data-cover-id]').forEach(element => {
+          const coverId = element.getAttribute('cover-data-cover-id');
+          if (coverId && !coverIds.includes(coverId)) coverIds.push(coverId);
+        });
+        copyId(coverIds.join(' '));
+      } else copyId(cover.id);
+    });
     sizeElement.style.setProperty('position', 'absolute');
     sizeElement.style.setProperty('top', '0');
     sizeElement.appendChild(sizeElementText);
@@ -287,10 +283,6 @@ newBookmarklet(() => {
         (_element$parentElemen = element.parentElement) === null || _element$parentElemen === void 0 ? void 0 : _element$parentElemen.append(descriptionElement);
         iconsElement.appendChild(descriptionShowElement);
       }
-      idCopyElementSvg.setAttribute('stroke-width', '1.5');
-      idCopyElementSvg.style.setProperty('width', '1.5rem');
-      idCopyElementSvg.style.setProperty('height', '1.5rem');
-      iconsElement.appendChild(idCopyElement);
       (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 ? void 0 : _element$parentElemen2.append(sizeElement, iconsElement);
     } else {
       sizeElement.style.setProperty('padding', '0 0.2rem');
@@ -309,10 +301,6 @@ newBookmarklet(() => {
         element.appendChild(descriptionElement);
         iconsElement.appendChild(descriptionShowElement);
       }
-      idCopyElementSvg.setAttribute('stroke-width', '2');
-      idCopyElementSvg.style.setProperty('width', '1.3rem');
-      idCopyElementSvg.style.setProperty('height', '1.3rem');
-      iconsElement.appendChild(idCopyElement);
       sizeElement.appendChild(iconsElement);
       element.appendChild(sizeElement);
     }
