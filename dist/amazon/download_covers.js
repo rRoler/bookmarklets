@@ -534,6 +534,15 @@ newBookmarklet(() => {
   const books = document.querySelectorAll('.itemImageLink');
   const getAsin = url => getMatch(url, /(?:[/dp]|$)([A-Z0-9]{10})/, 1);
   const getCoverUrl = asin => `https://${window.location.hostname}/images/P/${asin}.01.MAIN._SCRM_.jpg`;
+  const fetchCover = coverUrl => new Promise((resolve, reject) => fetch(coverUrl).then(rsp => rsp.blob()).then(blob => {
+    if (blob.size < 50) throw new Error('cover is smaller than 50 bytes');
+    resolve(blob);
+  }).catch(e => reject('Failed to fetch cover!\n' + e)));
+  let errored = 0;
+  const reportError = error => {
+    console.error(error);
+    if (++errored === 1) alert(error);
+  };
   if (books.length > 0) {
     const asins = Array.from(books).map(book => getAsin(book.href));
     if (books.length > zipAmount && confirm(`Since you're downloading more than ${zipAmount} covers, would you like to zip them?`)) return zipCovers(asins);
@@ -546,7 +555,7 @@ newBookmarklet(() => {
   function saveCovers(asins) {
     asins.forEach(asin => {
       if (!asin) return;
-      FileSaver_minExports.saveAs(getCoverUrl(asin), `${asin}.jpg`);
+      fetchCover(getCoverUrl(asin)).then(blob => FileSaver_minExports.saveAs(blob, `${asin}.jpg`)).catch(reportError);
     });
   }
   function zipCovers(asins) {
@@ -557,14 +566,14 @@ newBookmarklet(() => {
     const zip = new Zip((err, chunk, final) => {
       progressBar.update(zippedFiles / asins.length * 100);
       if (err) {
+        reportError('Failed to zip covers!\n' + err);
         progressBar.removeFromDocument();
-        alert('Failed to zip covers!');
       } else chunks.push(chunk);
       if (final) {
-        progressBar.removeFromDocument();
         FileSaver_minExports.saveAs(new Blob(chunks, {
           type: 'application/zip'
         }), 'covers.zip');
+        progressBar.removeFromDocument();
       }
     });
     asins.forEach(async asin => {
@@ -585,16 +594,15 @@ newBookmarklet(() => {
           file.push(data, true);
           resolve();
         };
-        fetch(coverUrl).then(rsp => rsp.blob()).then(blob => {
+        fetchCover(coverUrl).then(blob => {
           try {
             reader.readAsArrayBuffer(blob);
           } catch (e) {
-            progressBar.removeFromDocument();
-            console.error('Failed to zip cover!', e);
+            throw new Error('Failed to zip cover!\n' + e);
           }
         }).catch(e => {
+          reportError(e);
           progressBar.removeFromDocument();
-          console.error('Failed to fetch cover!', e);
         });
       });
     }

@@ -52,7 +52,7 @@ const bookmarklets = {
 		url: 'https://www.amazon.co.jp',
 		bookmarklets: {
 			download_covers: {
-				version: '1.7',
+				version: '1.8',
 				name: 'Download Covers',
 				description:
 					'Downloads covers. Mainly for Amazon Japan but should work on most kindle group or single book pages even on Global.',

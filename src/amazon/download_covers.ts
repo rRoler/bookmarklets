@@ -11,6 +11,21 @@ amazon.newBookmarklet(() => {
 		BM.getMatch(url, /(?:[/dp]|$)([A-Z0-9]{10})/, 1);
 	const getCoverUrl = (asin: string): string =>
 		`https://${window.location.hostname}/images/P/${asin}.01.MAIN._SCRM_.jpg`;
+	const fetchCover = (coverUrl: string): Promise<Blob> =>
+		new Promise((resolve, reject) =>
+			fetch(coverUrl)
+				.then((rsp) => rsp.blob())
+				.then((blob) => {
+					if (blob.size < 50) throw new Error('cover is smaller than 50 bytes');
+					resolve(blob);
+				})
+				.catch((e) => reject('Failed to fetch cover!\n' + e))
+		);
+	let errored = 0;
+	const reportError = (error: Error | string) => {
+		console.error(error);
+		if (++errored === 1) alert(error);
+	};
 
 	if (books.length > 0) {
 		const asins = Array.from(books).map((book) =>
@@ -33,7 +48,9 @@ amazon.newBookmarklet(() => {
 	function saveCovers(asins: Array<string | undefined>): void | boolean {
 		asins.forEach((asin) => {
 			if (!asin) return;
-			fileSaver.saveAs(getCoverUrl(asin), `${asin}.jpg`);
+			fetchCover(getCoverUrl(asin))
+				.then((blob) => fileSaver.saveAs(blob, `${asin}.jpg`))
+				.catch(reportError);
 		});
 	}
 	function zipCovers(asins: Array<string | undefined>): void {
@@ -46,15 +63,15 @@ amazon.newBookmarklet(() => {
 			(err: fflate.FlateError | null, chunk: Uint8Array, final: boolean) => {
 				progressBar.update((zippedFiles / asins.length) * 100);
 				if (err) {
+					reportError('Failed to zip covers!\n' + err);
 					progressBar.removeFromDocument();
-					alert('Failed to zip covers!');
 				} else chunks.push(chunk);
 				if (final) {
-					progressBar.removeFromDocument();
 					fileSaver.saveAs(
 						new Blob(chunks, { type: 'application/zip' }),
 						'covers.zip'
 					);
+					progressBar.removeFromDocument();
 				}
 			}
 		);
@@ -80,19 +97,17 @@ amazon.newBookmarklet(() => {
 					resolve();
 				};
 
-				fetch(coverUrl)
-					.then((rsp) => rsp.blob())
+				fetchCover(coverUrl)
 					.then((blob) => {
 						try {
 							reader.readAsArrayBuffer(blob);
 						} catch (e) {
-							progressBar.removeFromDocument();
-							console.error('Failed to zip cover!', e);
+							throw new Error('Failed to zip cover!\n' + e);
 						}
 					})
 					.catch((e) => {
+						reportError(e);
 						progressBar.removeFromDocument();
-						console.error('Failed to fetch cover!', e);
 					});
 			});
 		}
