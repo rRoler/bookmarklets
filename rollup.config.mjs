@@ -51,7 +51,7 @@ function rollup(bookmarkletsConfig, readme = false) {
 							commentStyle: 'ignored',
 							content:
 								`Licensed under MIT: ${repositoryUrl}/raw/main/LICENSE\n` +
-								`Third party licenses: ${repositoryUrl}/releases/latest/download/${dep_file}`,
+								`Third party licenses: ${repositoryUrl}/raw/main/${dep_file}`,
 						},
 						thirdParty: {
 							includePrivate: true,

@@ -91,7 +91,7 @@ function bookmarkletsConfig() {
 			].source_code = `${repositoryUrl}/blob/main/src/${bookmarklets[website].bookmarklets[bookmarklet].path}.ts`;
 			bookmarklets[website].bookmarklets[
 				bookmarklet
-			].bookmarklet_code = `${repositoryUrl}/releases/latest/download/${bookmarklets[website].bookmarklets[bookmarklet].id}.min.js`;
+			].bookmarklet_code = `${repositoryUrl}/blob/main/dist/${bookmarklets[website].bookmarklets[bookmarklet].id}.min.js`;
 		}
 	}
 

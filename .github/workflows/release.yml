@@ -45,4 +45,3 @@ jobs:
           prerelease: false
           files: |
             dist/**
-            LICENSE
