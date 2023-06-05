@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  latest-release:
+    name: Latest release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set env
+        run: echo "NOW=$(date +'%Y.%m.%d-%H.%M.%S')" >> $GITHUB_ENV
+
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install Node.js dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build bookmarklets
+        run: pnpm run build
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ env.NOW }}
+          generate_release_notes: true
+          tag_name: ${{ env.NOW }}
+          prerelease: false
+          files: |
+            dist/**
+            LICENSE

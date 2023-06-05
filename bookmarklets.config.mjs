@@ -1,4 +1,4 @@
-const repositoryUrl = 'https://github.com/rRoler/bookmarklets/blob/main';
+const repositoryUrl = 'https://github.com/rRoler/bookmarklets';
 const bookmarklets = {
 	mangadex: {
 		name: 'MangaDex',
@@ -81,14 +81,17 @@ function bookmarkletsConfig() {
 				bookmarklets[website];
 			bookmarklets[website].bookmarklets[
 				bookmarklet
-			].id = `${website}/${bookmarklet}`;
+			].path = `${website}/${bookmarklet}`;
+			bookmarklets[website].bookmarklets[
+				bookmarklet
+			].id = `${website}-${bookmarklet}`;
 			bookmarklets[website].bookmarklets[bookmarklet].author = 'Roler';
 			bookmarklets[website].bookmarklets[
 				bookmarklet
-			].source_code = `${repositoryUrl}/src/${website}/${bookmarklet}.ts`;
+			].source_code = `${repositoryUrl}/blob/main/src/${bookmarklets[website].bookmarklets[bookmarklet].path}.ts`;
 			bookmarklets[website].bookmarklets[
 				bookmarklet
-			].bookmarklet_code = `${repositoryUrl}/dist/${website}/${bookmarklet}.min.js`;
+			].bookmarklet_code = `${repositoryUrl}/releases/latest/download/${bookmarklets[website].bookmarklets[bookmarklet].id}.min.js`;
 		}
 	}
 
