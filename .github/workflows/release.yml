@@ -44,4 +44,6 @@ jobs:
           tag_name: ${{ env.NOW }}
           prerelease: false
           files: |
+            LICENSE
+            README.md
             dist/**

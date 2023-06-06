@@ -84,7 +84,7 @@ function bookmarkletsConfig() {
 			].path = `${website}/${bookmarklet}`;
 			bookmarklets[website].bookmarklets[
 				bookmarklet
-			].id = `${website}-${bookmarklet}`;
+			].id = `${website}-${bookmarklet}-v${bookmarklets[website].bookmarklets[bookmarklet].version}`;
 			bookmarklets[website].bookmarklets[bookmarklet].author = 'Roler';
 			bookmarklets[website].bookmarklets[
 				bookmarklet
