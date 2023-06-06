@@ -1,6 +1,6 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/amazon-download_covers-v1.8.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/amazon-download_covers.dependencies.txt
  */
 
 (function(){function newBookmarklet$1(websiteRegex, code) {
@@ -533,10 +533,24 @@ newBookmarklet(() => {
   const books = document.querySelectorAll('.itemImageLink');
   const getAsin = url => getMatch(url, /(?:[/dp]|$)([A-Z0-9]{10})/, 1);
   const getCoverUrl = asin => `https://${window.location.hostname}/images/P/${asin}.01.MAIN._SCRM_.jpg`;
-  const fetchCover = coverUrl => new Promise((resolve, reject) => fetch(coverUrl).then(rsp => rsp.blob()).then(blob => {
-    if (blob.size < 50) throw new Error('cover is smaller than 50 bytes');
-    resolve(blob);
-  }).catch(e => reject('Failed to fetch cover!\n' + e)));
+  const getCover = coverUrl => {
+    const fetchCover = url => new Promise((resolve, reject) => fetch(url).then(rsp => rsp.blob()).then(blob => {
+      if (blob.size < 50) throw new Error('cover is smaller than 50 bytes');
+      resolve(blob);
+    }).catch(e => reject('Failed to fetch cover!\n' + e)));
+    return new Promise((resolve, reject) => {
+      fetchCover(coverUrl).then(resolve).catch(e => {
+        const fallbackImage = document.querySelector('img#igImage') || document.querySelector('img#imgBlkFront') || document.querySelector('img#ebooksImgBlkFront');
+        if (fallbackImage) {
+          const regex = /(https?:\/\/.*\/images\/[A-Z]\/[A-Za-z0-9+-]+).*(\.[a-z]+)/;
+          const imageSource = getMatch(fallbackImage.src, regex, 1);
+          const imageExtension = getMatch(fallbackImage.src, regex, 2);
+          if (imageSource && imageExtension) return fetchCover(imageSource + imageExtension).then(resolve).catch(reject);
+        }
+        reject(e);
+      });
+    });
+  };
   let errored = 0;
   const reportError = error => {
     console.error(error);
@@ -554,7 +568,7 @@ newBookmarklet(() => {
   function saveCovers(asins) {
     asins.forEach(asin => {
       if (!asin) return;
-      fetchCover(getCoverUrl(asin)).then(blob => FileSaver_minExports.saveAs(blob, `${asin}.jpg`)).catch(reportError);
+      getCover(getCoverUrl(asin)).then(blob => FileSaver_minExports.saveAs(blob, `${asin}.jpg`)).catch(reportError);
     });
   }
   function zipCovers(asins) {
@@ -593,7 +607,7 @@ newBookmarklet(() => {
           file.push(data, true);
           resolve();
         };
-        fetchCover(coverUrl).then(blob => {
+        getCover(coverUrl).then(blob => {
           try {
             reader.readAsArrayBuffer(blob);
           } catch (e) {

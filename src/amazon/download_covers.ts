@@ -11,16 +11,41 @@ amazon.newBookmarklet(() => {
 		BM.getMatch(url, /(?:[/dp]|$)([A-Z0-9]{10})/, 1);
 	const getCoverUrl = (asin: string): string =>
 		`https://${window.location.hostname}/images/P/${asin}.01.MAIN._SCRM_.jpg`;
-	const fetchCover = (coverUrl: string): Promise<Blob> =>
-		new Promise((resolve, reject) =>
-			fetch(coverUrl)
-				.then((rsp) => rsp.blob())
-				.then((blob) => {
-					if (blob.size < 50) throw new Error('cover is smaller than 50 bytes');
-					resolve(blob);
-				})
-				.catch((e) => reject('Failed to fetch cover!\n' + e))
-		);
+	const getCover = (coverUrl: string): Promise<Blob> => {
+		const fetchCover = (url: string): Promise<Blob> =>
+			new Promise((resolve, reject) =>
+				fetch(url)
+					.then((rsp) => rsp.blob())
+					.then((blob) => {
+						if (blob.size < 50)
+							throw new Error('cover is smaller than 50 bytes');
+						resolve(blob);
+					})
+					.catch((e) => reject('Failed to fetch cover!\n' + e))
+			);
+
+		return new Promise((resolve, reject) => {
+			fetchCover(coverUrl)
+				.then(resolve)
+				.catch((e) => {
+					const fallbackImage: HTMLImageElement | null =
+						document.querySelector('img#igImage') ||
+						document.querySelector('img#imgBlkFront') ||
+						document.querySelector('img#ebooksImgBlkFront');
+					if (fallbackImage) {
+						const regex =
+							/(https?:\/\/.*\/images\/[A-Z]\/[A-Za-z0-9+-]+).*(\.[a-z]+)/;
+						const imageSource = BM.getMatch(fallbackImage.src, regex, 1);
+						const imageExtension = BM.getMatch(fallbackImage.src, regex, 2);
+						if (imageSource && imageExtension)
+							return fetchCover(imageSource + imageExtension)
+								.then(resolve)
+								.catch(reject);
+					}
+					reject(e);
+				});
+		});
+	};
 	let errored = 0;
 	const reportError = (error: Error | string) => {
 		console.error(error);
@@ -48,7 +73,7 @@ amazon.newBookmarklet(() => {
 	function saveCovers(asins: Array<string | undefined>): void | boolean {
 		asins.forEach((asin) => {
 			if (!asin) return;
-			fetchCover(getCoverUrl(asin))
+			getCover(getCoverUrl(asin))
 				.then((blob) => fileSaver.saveAs(blob, `${asin}.jpg`))
 				.catch(reportError);
 		});
@@ -97,7 +122,7 @@ amazon.newBookmarklet(() => {
 					resolve();
 				};
 
-				fetchCover(coverUrl)
+				getCover(coverUrl)
 					.then((blob) => {
 						try {
 							reader.readAsArrayBuffer(blob);

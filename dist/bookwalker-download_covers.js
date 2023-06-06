@@ -1,6 +1,6 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/bookwalker-download_covers-v1.3.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/bookwalker-download_covers.dependencies.txt
  */
 
 (function(){function newBookmarklet$1(websiteRegex, code) {

@@ -52,7 +52,7 @@ const bookmarklets = {
 		url: 'https://www.amazon.co.jp',
 		bookmarklets: {
 			download_covers: {
-				version: '1.8',
+				version: '1.9',
 				name: 'Download Covers',
 				description:
 					'Downloads covers. Mainly for Amazon Japan but should work on most kindle group or single book pages even on Global.',
@@ -84,7 +84,7 @@ function bookmarkletsConfig() {
 			].path = `${website}/${bookmarklet}`;
 			bookmarklets[website].bookmarklets[
 				bookmarklet
-			].id = `${website}-${bookmarklet}-v${bookmarklets[website].bookmarklets[bookmarklet].version}`;
+			].id = `${website}-${bookmarklet}`;
 			bookmarklets[website].bookmarklets[bookmarklet].author = 'Roler';
 			bookmarklets[website].bookmarklets[
 				bookmarklet

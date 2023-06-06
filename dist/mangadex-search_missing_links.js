@@ -1,6 +1,6 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-search_missing_links-v1.7.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-search_missing_links.dependencies.txt
  */
 
 (function(){function newBookmarklet$1(websiteRegex, code) {
