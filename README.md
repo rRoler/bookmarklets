@@ -2,16 +2,16 @@
 [Source Code]: https://img.shields.io/badge/Source%20Code-3c3c3c?style=for-the-badge
 
 - [MangaDex](#mangadex)
-	- [Show Cover Data](#mangadex-show-cover-data)
-	- [Add Cover Descriptions](#mangadex-add-cover-descriptions)
-	- [Search Missing Links](#mangadex-search-missing-links)
-	- [Shorten Links](#mangadex-shorten-links)
-	- [Open Links](#mangadex-open-links)
-	- [Delete Covers by Language](#mangadex-delete-covers-by-language)
+	- [Show Cover Data v2.8](#mangadex-show-cover-data)
+	- [Add Cover Descriptions v1.7](#mangadex-add-cover-descriptions)
+	- [Search Missing Links v1.7](#mangadex-search-missing-links)
+	- [Shorten Links v1.9](#mangadex-shorten-links)
+	- [Open Links v1.1](#mangadex-open-links)
+	- [Delete Covers by Language v1.4](#mangadex-delete-covers-by-language)
 - [Amazon](#amazon)
-	- [Download Covers](#amazon-download-covers)
+	- [Download Covers v1.9](#amazon-download-covers)
 - [BookWalker](#bookwalker)
-	- [Download Covers](#bookwalker-download-covers)
+	- [Download Covers v1.3](#bookwalker-download-covers)
 
 # [MangaDex](https://mangadex.org)
 <h6 id="mangadex-show-cover-data"></h6>
