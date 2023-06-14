@@ -3,7 +3,7 @@
  * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-add_cover_descriptions.dependencies.txt
  */
 
-(function(){function newBookmarklet$1(websiteRegex, code) {
+(() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
   code();
 }
@@ -28,10 +28,6 @@ function waitForElement(querySelectors, noElement = false) {
     });
   });
 }
-function parseStorage(key) {
-  const value = localStorage.getItem(key);
-  if (value) return JSON.parse(value);
-}
 
 const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
 const newBookmarklet = (code, settings = {}) => {
@@ -42,7 +38,6 @@ const newBookmarklet = (code, settings = {}) => {
     code();
   });
 };
-parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
 
 newBookmarklet(async () => {
   const defaultDescription = prompt('Enter a description:', 'Volume $volume Cover from BookWalker');

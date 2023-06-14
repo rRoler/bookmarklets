@@ -87,7 +87,11 @@ function rollup(bookmarkletsConfig, readme = false) {
 							comments: false,
 						},
 					}),
-					bookmarklet(),
+					bookmarklet({
+						iife: true,
+						prefix: true,
+						urlEncode: false,
+					}),
 					generateReadme({
 						bookmarkletId: bookmarkletConfig.id,
 						config: bookmarkletsConfig,

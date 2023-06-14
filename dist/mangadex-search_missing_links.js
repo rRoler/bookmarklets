@@ -3,7 +3,7 @@
  * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-search_missing_links.dependencies.txt
  */
 
-(function(){function newBookmarklet$1(websiteRegex, code) {
+(() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
   code();
 }
@@ -26,11 +26,12 @@ const newBookmarklet = (code, settings = {}) => {
     code();
   });
 };
-const authTokens = parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
+const getAuthToken = () => parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
 function fetchTitleInfo() {
+  const authToken = getAuthToken();
   return new Promise((resolve, reject) => fetch(`https://api.mangadex.org/manga${isDraft ? '/draft/' : '/'}${titleId}`, {
     headers: {
-      Authorization: isDraft ? `${authTokens.token_type} ${authTokens.access_token}` : ''
+      Authorization: isDraft ? `${authToken.token_type} ${authToken.access_token}` : ''
     }
   }).then(rsp => resolve(rsp.json())).catch(e => {
     alert('Failed to fetch title info!');

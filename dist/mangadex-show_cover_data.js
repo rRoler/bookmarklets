@@ -3,7 +3,7 @@
  * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-show_cover_data.dependencies.txt
  */
 
-(function(){function newBookmarklet$1(websiteRegex, code) {
+(() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
   code();
 }
@@ -16,10 +16,6 @@ function splitArray(array, chunkSize = 100) {
   const resArray = [];
   while (arrayCopy.length) resArray.push(arrayCopy.splice(0, chunkSize));
   return resArray;
-}
-function parseStorage(key) {
-  const value = localStorage.getItem(key);
-  if (value) return JSON.parse(value);
 }
 function createSVG({
   fill = 'none',
@@ -50,7 +46,6 @@ const newBookmarklet = (code, settings = {}) => {
     code();
   });
 };
-parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
 
 function _defineProperty(obj, key, value) {
   key = _toPropertyKey(key);

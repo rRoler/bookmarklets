@@ -30,7 +30,7 @@ const newBookmarklet = (
 	});
 };
 
-const authTokens =
+const getAuthToken = () =>
 	BM.parseStorage(
 		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable'
 	) ||
@@ -39,13 +39,14 @@ const authTokens =
 	);
 
 function fetchTitleInfo(): Promise<Api.MangaResponse> {
+	const authToken = getAuthToken();
 	return new Promise((resolve, reject) =>
 		fetch(
 			`https://api.mangadex.org/manga${isDraft ? '/draft/' : '/'}${titleId}`,
 			{
 				headers: {
 					Authorization: isDraft
-						? `${authTokens.token_type} ${authTokens.access_token}`
+						? `${authToken.token_type} ${authToken.access_token}`
 						: '',
 				},
 			}

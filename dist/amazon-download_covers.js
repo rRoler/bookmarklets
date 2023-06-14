@@ -3,7 +3,7 @@
  * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/amazon-download_covers.dependencies.txt
  */
 
-(function(){function newBookmarklet$1(websiteRegex, code) {
+(() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
   code();
 }

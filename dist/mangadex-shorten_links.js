@@ -3,17 +3,13 @@
  * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-shorten_links.dependencies.txt
  */
 
-(function(){function newBookmarklet$1(websiteRegex, code) {
+(() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
   code();
 }
 function getMatch(string, regex, index = 0) {
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
-}
-function parseStorage(key) {
-  const value = localStorage.getItem(key);
-  if (value) return JSON.parse(value);
 }
 
 const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
@@ -25,7 +21,6 @@ const newBookmarklet = (code, settings = {}) => {
     code();
   });
 };
-parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
 
 newBookmarklet(() => {
   const inputs = [];
