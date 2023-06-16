@@ -195,6 +195,7 @@ mangadex.newBookmarklet(() => {
 				display: 'none',
 				'align-items': 'center',
 				'justify-content': 'center',
+				'background-color': 'var(--md-accent)',
 				'z-index': '4',
 			});
 			descriptionElement.addEventListener('click', (e) =>
