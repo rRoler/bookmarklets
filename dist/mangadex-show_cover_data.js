@@ -36,6 +36,9 @@ function createSVG({
   svg.appendChild(svgPath);
   return svg;
 }
+function setStyle(element, styles) {
+  for (const style in styles) element.style.setProperty(style, styles[style]);
+}
 
 const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
 const newBookmarklet = (code, settings = {}) => {
@@ -78,31 +81,37 @@ function _toPropertyKey(arg) {
 
 class SimpleProgressBar {
   constructor(initialPercentage = 0) {
-    _defineProperty(this, "addToDocument", () => document.body.appendChild(this.element));
-    _defineProperty(this, "removeFromDocument", () => this.element.remove());
+    _defineProperty(this, "add", () => document.body.appendChild(this.element));
+    _defineProperty(this, "remove", () => this.element.remove());
     const background = document.createElement('div');
-    background.style.setProperty('z-index', '1000');
-    background.style.setProperty('position', 'fixed');
-    background.style.setProperty('bottom', '0');
-    background.style.setProperty('left', '0');
-    background.style.setProperty('width', '100%');
-    background.style.setProperty('height', '24px');
-    background.style.setProperty('background-color', '#3c3c3c');
-    background.style.setProperty('cursor', 'pointer');
+    setStyle(background, {
+      'z-index': '1000',
+      position: 'fixed',
+      bottom: '0',
+      left: '0',
+      width: '100%',
+      height: '24px',
+      'background-color': '#3c3c3c',
+      cursor: 'pointer'
+    });
     const progress = document.createElement('div');
-    progress.style.setProperty('height', '100%');
-    progress.style.setProperty('background-color', '#b5e853');
-    progress.style.setProperty('transition', 'width 200ms');
+    setStyle(progress, {
+      height: '100%',
+      'background-color': '#b5e853',
+      transition: 'width 200ms'
+    });
     this.bar = progress;
     this.update(initialPercentage);
     background.appendChild(progress);
-    background.addEventListener('click', this.removeFromDocument);
+    background.addEventListener('click', this.remove);
     this.element = background;
   }
   update(percentage) {
     const currentPercentageRounded = Math.ceil(parseInt(this.bar.style.getPropertyValue('width')));
     const percentageRounded = Math.ceil(percentage);
-    if (percentageRounded >= 100) this.removeFromDocument();else if (currentPercentageRounded !== percentageRounded && percentageRounded >= 0) this.bar.style.setProperty('width', `${percentageRounded}%`);
+    if (percentageRounded >= 100) this.remove();else if (currentPercentageRounded !== percentageRounded && percentageRounded >= 0) setStyle(this.bar, {
+      width: `${percentageRounded}%`
+    });
   }
 }
 
@@ -139,7 +148,7 @@ newBookmarklet(() => {
     if (document.querySelector('[cover-data-bookmarklet="executed"]')) return alert('No new covers were found on this page since the last time this bookmarklet was executed!');
     return alert('No covers were found on this page!');
   }
-  progressBar.addToDocument();
+  progressBar.add();
   coverFileNames.forEach((fileNames, mangaId) => {
     var _skippedCoverFileName;
     const skippedCoversSize = ((_skippedCoverFileName = skippedCoverFileNames.get(mangaId)) === null || _skippedCoverFileName === void 0 ? void 0 : _skippedCoverFileName.size) || 0;
@@ -148,13 +157,15 @@ newBookmarklet(() => {
   getAllCoverData().then(covers => {
     let addedCoverData = 0;
     const coverImagesContainer = document.createElement('div');
-    coverImagesContainer.style.setProperty('width', 'fit-content');
-    coverImagesContainer.style.setProperty('height', 'fit-content');
-    coverImagesContainer.style.setProperty('opacity', '0');
-    coverImagesContainer.style.setProperty('position', 'absolute');
-    coverImagesContainer.style.setProperty('top', '-10000px');
-    coverImagesContainer.style.setProperty('z-index', '-10000');
-    coverImagesContainer.style.setProperty('pointer-events', 'none');
+    setStyle(coverImagesContainer, {
+      width: 'fit-content',
+      height: 'fit-content',
+      opacity: '0',
+      position: 'absolute',
+      top: '-10000px',
+      'z-index': '-10000',
+      'pointer-events': 'none'
+    });
     document.body.appendChild(coverImagesContainer);
     coverElements.forEach(element => {
       const imageSource = element.src || element.style.getPropertyValue('background-image');
@@ -203,7 +214,9 @@ newBookmarklet(() => {
     descriptionElement.classList.add('cover-data-bookmarklet-description');
     if (cover.attributes.description) {
       const showDescriptions = (event, show = true) => {
-        const showDescription = element => element.style.setProperty('display', show ? 'flex' : 'none');
+        const showDescription = element => setStyle(element, {
+          display: show ? 'flex' : 'none'
+        });
         event.stopPropagation();
         event.preventDefault();
         if (event.shiftKey) document.querySelectorAll('.cover-data-bookmarklet-description').forEach(element => showDescription(element));else showDescription(descriptionElement);
@@ -213,18 +226,21 @@ newBookmarklet(() => {
       descriptionShowElement.appendChild(descriptionShowElementSvg);
       const descriptionTextElement = document.createElement('span');
       descriptionTextElement.innerText = cover.attributes.description;
-      descriptionTextElement.style.setProperty('max-height', '100%');
-      descriptionTextElement.style.setProperty('margin', '0.2rem');
-      descriptionTextElement.style.setProperty('text-align', 'center');
-      descriptionElement.style.setProperty('position', 'absolute');
-      descriptionElement.style.setProperty('width', '100%');
-      descriptionElement.style.setProperty('height', '100%');
-      descriptionElement.style.setProperty('overflow-y', 'auto');
-      descriptionElement.style.setProperty('display', 'none');
-      descriptionElement.style.setProperty('align-items', 'center');
-      descriptionElement.style.setProperty('justify-content', 'center');
-      descriptionElement.style.setProperty('background-color', 'var(--md-accent)');
-      descriptionElement.style.setProperty('z-index', '4');
+      setStyle(descriptionTextElement, {
+        'max-height': '100%',
+        margin: '0.2rem',
+        'text-align': 'center'
+      });
+      setStyle(descriptionElement, {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        'overflow-y': 'auto',
+        display: 'none',
+        'align-items': 'center',
+        'justify-content': 'center',
+        'z-index': '4'
+      });
       descriptionElement.addEventListener('click', e => showDescriptions(e, false));
       descriptionElement.appendChild(descriptionTextElement);
     }
@@ -248,51 +264,71 @@ newBookmarklet(() => {
         copyId(coverIds.join(' '));
       } else copyId(cover.id);
     });
-    sizeElement.style.setProperty('position', 'absolute');
-    sizeElement.style.setProperty('top', '0');
+    setStyle(sizeElement, {
+      position: 'absolute',
+      top: '0'
+    });
     sizeElement.appendChild(sizeElementText);
     const iconsElement = document.createElement('div');
-    iconsElement.style.setProperty('display', 'flex');
-    iconsElement.style.setProperty('flex-wrap', 'nowrap');
-    iconsElement.style.setProperty('gap', '0.2rem');
+    setStyle(iconsElement, {
+      display: 'flex',
+      'flex-wrap': 'nowrap',
+      gap: '0.2rem'
+    });
     if (element instanceof HTMLImageElement) {
       var _element$parentElemen2;
-      sizeElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
-      sizeElement.style.setProperty('color', '#fff');
-      sizeElement.style.setProperty('left', '0');
-      sizeElement.style.setProperty('width', '100%');
-      sizeElement.style.setProperty('background', 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))');
-      sizeElement.style.setProperty('border-top-right-radius', '0.25rem');
-      sizeElement.style.setProperty('border-top-left-radius', '0.25rem');
-      iconsElement.style.setProperty('position', 'absolute');
-      iconsElement.style.setProperty('top', '0');
-      iconsElement.style.setProperty('right', '0');
-      iconsElement.style.setProperty('padding', '0.45rem 0.5rem');
-      iconsElement.style.setProperty('color', '#fff');
+      setStyle(sizeElement, {
+        padding: '0.5rem 0.5rem 1rem',
+        color: '#fff',
+        left: '0',
+        width: '100%',
+        background: 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))',
+        'border-top-right-radius': '0.25rem',
+        'border-top-left-radius': '0.25rem'
+      });
+      setStyle(iconsElement, {
+        position: 'absolute',
+        top: '0',
+        right: '0',
+        padding: '0.45rem 0.5rem',
+        color: '#fff'
+      });
       if (cover.attributes.description) {
         var _element$parentElemen;
         descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
-        descriptionShowElementSvg.style.setProperty('width', '1.5rem');
-        descriptionShowElementSvg.style.setProperty('height', '1.5rem');
-        descriptionElement.style.setProperty('border-radius', '0.25rem');
+        setStyle(descriptionShowElementSvg, {
+          width: '1.5rem',
+          height: '1.5rem'
+        });
+        setStyle(descriptionElement, {
+          'border-radius': '0.25rem'
+        });
         (_element$parentElemen = element.parentElement) === null || _element$parentElemen === void 0 ? void 0 : _element$parentElemen.append(descriptionElement);
         iconsElement.appendChild(descriptionShowElement);
       }
       (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 ? void 0 : _element$parentElemen2.append(sizeElement, iconsElement);
     } else {
-      sizeElement.style.setProperty('padding', '0 0.2rem');
-      sizeElement.style.setProperty('background-color', 'var(--md-accent)');
-      sizeElement.style.setProperty('border-bottom-left-radius', '4px');
-      sizeElement.style.setProperty('border-bottom-right-radius', '4px');
+      setStyle(sizeElement, {
+        padding: '0 0.2rem',
+        'background-color': 'var(--md-accent)',
+        'border-bottom-left-radius': '4px',
+        'border-bottom-right-radius': '4px'
+      });
       element.appendChild(sizeElement);
-      iconsElement.style.setProperty('margin-left', '0.2rem');
-      sizeElement.style.setProperty('display', 'flex');
-      sizeElement.style.setProperty('flex-wrap', 'nowrap');
-      sizeElement.style.setProperty('align-items', 'center');
+      setStyle(iconsElement, {
+        'margin-left': '0.2rem'
+      });
+      setStyle(sizeElement, {
+        display: 'flex',
+        'flex-wrap': 'nowrap',
+        'align-items': 'center'
+      });
       if (cover.attributes.description) {
         descriptionShowElementSvg.setAttribute('stroke-width', '2');
-        descriptionShowElementSvg.style.setProperty('width', '1.3rem');
-        descriptionShowElementSvg.style.setProperty('height', '1.3rem');
+        setStyle(descriptionShowElementSvg, {
+          width: '1.3rem',
+          height: '1.3rem'
+        });
         element.appendChild(descriptionElement);
         iconsElement.appendChild(descriptionShowElement);
       }

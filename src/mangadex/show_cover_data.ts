@@ -56,7 +56,7 @@ mangadex.newBookmarklet(() => {
 		return alert('No covers were found on this page!');
 	}
 
-	progressBar.addToDocument();
+	progressBar.add();
 
 	coverFileNames.forEach((fileNames, mangaId) => {
 		const skippedCoversSize = skippedCoverFileNames.get(mangaId)?.size || 0;
@@ -69,13 +69,15 @@ mangadex.newBookmarklet(() => {
 		.then((covers) => {
 			let addedCoverData = 0;
 			const coverImagesContainer = document.createElement('div');
-			coverImagesContainer.style.setProperty('width', 'fit-content');
-			coverImagesContainer.style.setProperty('height', 'fit-content');
-			coverImagesContainer.style.setProperty('opacity', '0');
-			coverImagesContainer.style.setProperty('position', 'absolute');
-			coverImagesContainer.style.setProperty('top', '-10000px');
-			coverImagesContainer.style.setProperty('z-index', '-10000');
-			coverImagesContainer.style.setProperty('pointer-events', 'none');
+			BM.setStyle(coverImagesContainer, {
+				width: 'fit-content',
+				height: 'fit-content',
+				opacity: '0',
+				position: 'absolute',
+				top: '-10000px',
+				'z-index': '-10000',
+				'pointer-events': 'none',
+			});
 			document.body.appendChild(coverImagesContainer);
 			coverElements.forEach((element) => {
 				const imageSource =
@@ -161,7 +163,7 @@ mangadex.newBookmarklet(() => {
 		if (cover.attributes.description) {
 			const showDescriptions = (event: MouseEvent, show = true) => {
 				const showDescription = (element: HTMLSpanElement) =>
-					element.style.setProperty('display', show ? 'flex' : 'none');
+					BM.setStyle(element, { display: show ? 'flex' : 'none' });
 
 				event.stopPropagation();
 				event.preventDefault();
@@ -180,21 +182,21 @@ mangadex.newBookmarklet(() => {
 			descriptionShowElement.appendChild(descriptionShowElementSvg);
 			const descriptionTextElement = document.createElement('span');
 			descriptionTextElement.innerText = cover.attributes.description;
-			descriptionTextElement.style.setProperty('max-height', '100%');
-			descriptionTextElement.style.setProperty('margin', '0.2rem');
-			descriptionTextElement.style.setProperty('text-align', 'center');
-			descriptionElement.style.setProperty('position', 'absolute');
-			descriptionElement.style.setProperty('width', '100%');
-			descriptionElement.style.setProperty('height', '100%');
-			descriptionElement.style.setProperty('overflow-y', 'auto');
-			descriptionElement.style.setProperty('display', 'none');
-			descriptionElement.style.setProperty('align-items', 'center');
-			descriptionElement.style.setProperty('justify-content', 'center');
-			descriptionElement.style.setProperty(
-				'background-color',
-				'var(--md-accent)'
-			);
-			descriptionElement.style.setProperty('z-index', '4');
+			BM.setStyle(descriptionTextElement, {
+				'max-height': '100%',
+				margin: '0.2rem',
+				'text-align': 'center',
+			});
+			BM.setStyle(descriptionElement, {
+				position: 'absolute',
+				width: '100%',
+				height: '100%',
+				'overflow-y': 'auto',
+				display: 'none',
+				'align-items': 'center',
+				'justify-content': 'center',
+				'z-index': '4',
+			});
 			descriptionElement.addEventListener('click', (e) =>
 				showDescriptions(e, false)
 			);
@@ -230,52 +232,65 @@ mangadex.newBookmarklet(() => {
 				copyId(coverIds.join(' '));
 			} else copyId(cover.id);
 		});
-		sizeElement.style.setProperty('position', 'absolute');
-		sizeElement.style.setProperty('top', '0');
+		BM.setStyle(sizeElement, {
+			position: 'absolute',
+			top: '0',
+		});
 		sizeElement.appendChild(sizeElementText);
 		const iconsElement = document.createElement('div');
-		iconsElement.style.setProperty('display', 'flex');
-		iconsElement.style.setProperty('flex-wrap', 'nowrap');
-		iconsElement.style.setProperty('gap', '0.2rem');
+		BM.setStyle(iconsElement, {
+			display: 'flex',
+			'flex-wrap': 'nowrap',
+			gap: '0.2rem',
+		});
 		if (element instanceof HTMLImageElement) {
-			sizeElement.style.setProperty('padding', '0.5rem 0.5rem 1rem');
-			sizeElement.style.setProperty('color', '#fff');
-			sizeElement.style.setProperty('left', '0');
-			sizeElement.style.setProperty('width', '100%');
-			sizeElement.style.setProperty(
-				'background',
-				'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))'
-			);
-			sizeElement.style.setProperty('border-top-right-radius', '0.25rem');
-			sizeElement.style.setProperty('border-top-left-radius', '0.25rem');
-			iconsElement.style.setProperty('position', 'absolute');
-			iconsElement.style.setProperty('top', '0');
-			iconsElement.style.setProperty('right', '0');
-			iconsElement.style.setProperty('padding', '0.45rem 0.5rem');
-			iconsElement.style.setProperty('color', '#fff');
+			BM.setStyle(sizeElement, {
+				padding: '0.5rem 0.5rem 1rem',
+				color: '#fff',
+				left: '0',
+				width: '100%',
+				background: 'linear-gradient(0deg,transparent,rgba(0,0,0,0.8))',
+				'border-top-right-radius': '0.25rem',
+				'border-top-left-radius': '0.25rem',
+			});
+			BM.setStyle(iconsElement, {
+				position: 'absolute',
+				top: '0',
+				right: '0',
+				padding: '0.45rem 0.5rem',
+				color: '#fff',
+			});
 			if (cover.attributes.description) {
 				descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
-				descriptionShowElementSvg.style.setProperty('width', '1.5rem');
-				descriptionShowElementSvg.style.setProperty('height', '1.5rem');
-				descriptionElement.style.setProperty('border-radius', '0.25rem');
+				BM.setStyle(descriptionShowElementSvg, {
+					width: '1.5rem',
+					height: '1.5rem',
+				});
+				BM.setStyle(descriptionElement, { 'border-radius': '0.25rem' });
 				element.parentElement?.append(descriptionElement);
 				iconsElement.appendChild(descriptionShowElement);
 			}
 			element.parentElement?.append(sizeElement, iconsElement);
 		} else {
-			sizeElement.style.setProperty('padding', '0 0.2rem');
-			sizeElement.style.setProperty('background-color', 'var(--md-accent)');
-			sizeElement.style.setProperty('border-bottom-left-radius', '4px');
-			sizeElement.style.setProperty('border-bottom-right-radius', '4px');
+			BM.setStyle(sizeElement, {
+				padding: '0 0.2rem',
+				'background-color': 'var(--md-accent)',
+				'border-bottom-left-radius': '4px',
+				'border-bottom-right-radius': '4px',
+			});
 			element.appendChild(sizeElement);
-			iconsElement.style.setProperty('margin-left', '0.2rem');
-			sizeElement.style.setProperty('display', 'flex');
-			sizeElement.style.setProperty('flex-wrap', 'nowrap');
-			sizeElement.style.setProperty('align-items', 'center');
+			BM.setStyle(iconsElement, { 'margin-left': '0.2rem' });
+			BM.setStyle(sizeElement, {
+				display: 'flex',
+				'flex-wrap': 'nowrap',
+				'align-items': 'center',
+			});
 			if (cover.attributes.description) {
 				descriptionShowElementSvg.setAttribute('stroke-width', '2');
-				descriptionShowElementSvg.style.setProperty('width', '1.3rem');
-				descriptionShowElementSvg.style.setProperty('height', '1.3rem');
+				BM.setStyle(descriptionShowElementSvg, {
+					width: '1.3rem',
+					height: '1.3rem',
+				});
 				element.appendChild(descriptionElement);
 				iconsElement.appendChild(descriptionShowElement);
 			}

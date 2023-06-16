@@ -11,6 +11,9 @@ function getMatch(string, regex, index = 0) {
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
+function setStyle(element, styles) {
+  for (const style in styles) element.style.setProperty(style, styles[style]);
+}
 
 const newBookmarklet = code => {
   newBookmarklet$1('www.amazon.*', code);
@@ -500,31 +503,37 @@ function _toPropertyKey(arg) {
 
 class SimpleProgressBar {
   constructor(initialPercentage = 0) {
-    _defineProperty(this, "addToDocument", () => document.body.appendChild(this.element));
-    _defineProperty(this, "removeFromDocument", () => this.element.remove());
+    _defineProperty(this, "add", () => document.body.appendChild(this.element));
+    _defineProperty(this, "remove", () => this.element.remove());
     const background = document.createElement('div');
-    background.style.setProperty('z-index', '1000');
-    background.style.setProperty('position', 'fixed');
-    background.style.setProperty('bottom', '0');
-    background.style.setProperty('left', '0');
-    background.style.setProperty('width', '100%');
-    background.style.setProperty('height', '24px');
-    background.style.setProperty('background-color', '#3c3c3c');
-    background.style.setProperty('cursor', 'pointer');
+    setStyle(background, {
+      'z-index': '1000',
+      position: 'fixed',
+      bottom: '0',
+      left: '0',
+      width: '100%',
+      height: '24px',
+      'background-color': '#3c3c3c',
+      cursor: 'pointer'
+    });
     const progress = document.createElement('div');
-    progress.style.setProperty('height', '100%');
-    progress.style.setProperty('background-color', '#b5e853');
-    progress.style.setProperty('transition', 'width 200ms');
+    setStyle(progress, {
+      height: '100%',
+      'background-color': '#b5e853',
+      transition: 'width 200ms'
+    });
     this.bar = progress;
     this.update(initialPercentage);
     background.appendChild(progress);
-    background.addEventListener('click', this.removeFromDocument);
+    background.addEventListener('click', this.remove);
     this.element = background;
   }
   update(percentage) {
     const currentPercentageRounded = Math.ceil(parseInt(this.bar.style.getPropertyValue('width')));
     const percentageRounded = Math.ceil(percentage);
-    if (percentageRounded >= 100) this.removeFromDocument();else if (currentPercentageRounded !== percentageRounded && percentageRounded >= 0) this.bar.style.setProperty('width', `${percentageRounded}%`);
+    if (percentageRounded >= 100) this.remove();else if (currentPercentageRounded !== percentageRounded && percentageRounded >= 0) setStyle(this.bar, {
+      width: `${percentageRounded}%`
+    });
   }
 }
 
@@ -551,10 +560,10 @@ newBookmarklet(() => {
       });
     });
   };
-  let errored = 0;
+  let errors = 0;
   const reportError = error => {
     console.error(error);
-    if (++errored === 1) alert(error);
+    if (++errors === 1) alert(error);
   };
   if (books.length > 0) {
     const asins = Array.from(books).map(book => getAsin(book.href));
@@ -573,20 +582,20 @@ newBookmarklet(() => {
   }
   function zipCovers(asins) {
     const progressBar = new SimpleProgressBar();
-    progressBar.addToDocument();
+    progressBar.add();
     let zippedFiles = 0;
     const chunks = [];
     const zip = new Zip((err, chunk, final) => {
       progressBar.update(zippedFiles / asins.length * 100);
       if (err) {
         reportError('Failed to zip covers!\n' + err);
-        progressBar.removeFromDocument();
+        progressBar.remove();
       } else chunks.push(chunk);
       if (final) {
         FileSaver_minExports.saveAs(new Blob(chunks, {
           type: 'application/zip'
         }), 'covers.zip');
-        progressBar.removeFromDocument();
+        progressBar.remove();
       }
     });
     asins.forEach(async asin => {
@@ -615,7 +624,7 @@ newBookmarklet(() => {
           }
         }).catch(e => {
           reportError(e);
-          progressBar.removeFromDocument();
+          progressBar.remove();
         });
       });
     }

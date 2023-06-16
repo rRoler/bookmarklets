@@ -77,6 +77,13 @@ function createSVG({
 	return svg;
 }
 
+function setStyle(
+	element: HTMLElement | SVGSVGElement,
+	styles: Record<string, string>
+) {
+	for (const style in styles) element.style.setProperty(style, styles[style]);
+}
+
 export {
 	newBookmarklet,
 	getMatch,
@@ -84,4 +91,5 @@ export {
 	waitForElement,
 	parseStorage,
 	createSVG,
+	setStyle,
 };

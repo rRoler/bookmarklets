@@ -46,10 +46,10 @@ amazon.newBookmarklet(() => {
 				});
 		});
 	};
-	let errored = 0;
+	let errors = 0;
 	const reportError = (error: Error | string) => {
 		console.error(error);
-		if (++errored === 1) alert(error);
+		if (++errors === 1) alert(error);
 	};
 
 	if (books.length > 0) {
@@ -80,7 +80,7 @@ amazon.newBookmarklet(() => {
 	}
 	function zipCovers(asins: Array<string | undefined>): void {
 		const progressBar = new SimpleProgressBar();
-		progressBar.addToDocument();
+		progressBar.add();
 
 		let zippedFiles = 0;
 		const chunks: Uint8Array[] = [];
@@ -89,14 +89,14 @@ amazon.newBookmarklet(() => {
 				progressBar.update((zippedFiles / asins.length) * 100);
 				if (err) {
 					reportError('Failed to zip covers!\n' + err);
-					progressBar.removeFromDocument();
+					progressBar.remove();
 				} else chunks.push(chunk);
 				if (final) {
 					fileSaver.saveAs(
 						new Blob(chunks, { type: 'application/zip' }),
 						'covers.zip'
 					);
-					progressBar.removeFromDocument();
+					progressBar.remove();
 				}
 			}
 		);
@@ -132,7 +132,7 @@ amazon.newBookmarklet(() => {
 					})
 					.catch((e) => {
 						reportError(e);
-						progressBar.removeFromDocument();
+						progressBar.remove();
 					});
 			});
 		}

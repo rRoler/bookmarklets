@@ -77,7 +77,7 @@ newBookmarklet(async () => {
   }
   function setDescription(description) {
     return new Promise(resolve => {
-      const selectors = 'textarea[placeholder="Cover Description"]';
+      const selectors = 'textarea[placeholder="Cover Information"]';
       waitForElement(selectors).then(element => {
         var _element$parentElemen4, _element$parentElemen5, _element$parentElemen6, _element$parentElemen7;
         let changed = true;

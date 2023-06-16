@@ -1,25 +1,31 @@
+import * as BM from '../shared';
+
 class SimpleProgressBar {
 	element: HTMLDivElement;
 	bar: HTMLDivElement;
 
 	constructor(initialPercentage = 0) {
 		const background = document.createElement('div');
-		background.style.setProperty('z-index', '1000');
-		background.style.setProperty('position', 'fixed');
-		background.style.setProperty('bottom', '0');
-		background.style.setProperty('left', '0');
-		background.style.setProperty('width', '100%');
-		background.style.setProperty('height', '24px');
-		background.style.setProperty('background-color', '#3c3c3c');
-		background.style.setProperty('cursor', 'pointer');
+		BM.setStyle(background, {
+			'z-index': '1000',
+			position: 'fixed',
+			bottom: '0',
+			left: '0',
+			width: '100%',
+			height: '24px',
+			'background-color': '#3c3c3c',
+			cursor: 'pointer',
+		});
 		const progress = document.createElement('div');
-		progress.style.setProperty('height', '100%');
-		progress.style.setProperty('background-color', '#b5e853');
-		progress.style.setProperty('transition', 'width 200ms');
+		BM.setStyle(progress, {
+			height: '100%',
+			'background-color': '#b5e853',
+			transition: 'width 200ms',
+		});
 		this.bar = progress;
 		this.update(initialPercentage);
 		background.appendChild(progress);
-		background.addEventListener('click', this.removeFromDocument);
+		background.addEventListener('click', this.remove);
 		this.element = background;
 	}
 
@@ -28,17 +34,19 @@ class SimpleProgressBar {
 			parseInt(this.bar.style.getPropertyValue('width'))
 		);
 		const percentageRounded = Math.ceil(percentage);
-		if (percentageRounded >= 100) this.removeFromDocument();
+		if (percentageRounded >= 100) this.remove();
 		else if (
 			currentPercentageRounded !== percentageRounded &&
 			percentageRounded >= 0
 		)
-			this.bar.style.setProperty('width', `${percentageRounded}%`);
+			BM.setStyle(this.bar, {
+				width: `${percentageRounded}%`,
+			});
 	}
 
-	addToDocument = (): HTMLDivElement => document.body.appendChild(this.element);
+	add = (): HTMLDivElement => document.body.appendChild(this.element);
 
-	removeFromDocument = (): void => this.element.remove();
+	remove = (): void => this.element.remove();
 }
 
 export default SimpleProgressBar;

@@ -5,7 +5,7 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '2.9',
+				version: '3.0',
 				name: 'Show Cover Data',
 				description:
 					'Display cover sizes and descriptions. ' +
@@ -14,7 +14,7 @@ const bookmarklets = {
 					'<br>Click the cover size element to copy the cover id (hold shift while clicking it to copy all ids).',
 			},
 			add_cover_descriptions: {
-				version: '1.8',
+				version: '1.9',
 				name: 'Add Cover Descriptions',
 				description:
 					'Requires the title edit and cover edit permissions. Adds cover descriptions to all newly added covers with no description on the title edit page.' +
@@ -52,7 +52,7 @@ const bookmarklets = {
 		url: 'https://www.amazon.co.jp',
 		bookmarklets: {
 			download_covers: {
-				version: '2.0',
+				version: '2.1',
 				name: 'Download Covers',
 				description:
 					'Downloads covers. Mainly for Amazon Japan but should work on most kindle group or single book pages even on Global.',
