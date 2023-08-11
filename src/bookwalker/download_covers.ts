@@ -27,7 +27,7 @@ bookwalker.newBookmarklet(() => {
 			(cover as HTMLImageElement).getAttribute('data-original') ||
 				(cover as HTMLImageElement).getAttribute('data-srcset') ||
 				(cover as HTMLImageElement).src ||
-				(cover as HTMLMetaElement).content
+				(cover as HTMLMetaElement).content,
 		);
 	}) as Array<string | undefined>;
 

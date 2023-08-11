@@ -4,7 +4,7 @@
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
-  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
+  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
 function getMatch(string, regex, index = 0) {
@@ -544,7 +544,7 @@ newBookmarklet(() => {
   const getCoverUrl = asin => `https://${window.location.hostname}/images/P/${asin}.01.MAIN._SCRM_.jpg`;
   const getCover = coverUrl => {
     const fetchCover = url => new Promise((resolve, reject) => fetch(url).then(rsp => rsp.blob()).then(blob => {
-      if (blob.size < 50) throw new Error('cover is smaller than 50 bytes');
+      if (blob.size < 1024) throw new Error('cover is smaller than 1 KB');
       resolve(blob);
     }).catch(e => reject('Failed to fetch cover!\n' + e)));
     return new Promise((resolve, reject) => {

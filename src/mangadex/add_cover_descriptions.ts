@@ -5,7 +5,7 @@ mangadex.newBookmarklet(
 	async () => {
 		const defaultDescription = prompt(
 			'Enter a description:',
-			'Volume $volume Cover from BookWalker'
+			'Volume $volume Cover from BookWalker',
 		);
 		if (!defaultDescription) return;
 		const changedDescriptions: Array<HTMLDivElement> = [];
@@ -15,12 +15,12 @@ mangadex.newBookmarklet(
 				/blob:https?:\/\/.*mangadex.*\/+[-0-9a-f]{20,}/.test(
 					(
 						element.querySelector('.page') as HTMLDivElement
-					).style.getPropertyValue('background-image')
+					).style.getPropertyValue('background-image'),
 				)
 			) {
 				const coverDescription = parseDescription(
 					element as HTMLDivElement,
-					defaultDescription
+					defaultDescription,
 				);
 				const edit = element.parentElement?.querySelector('.volume-edit');
 				edit?.dispatchEvent(new MouseEvent('click'));
@@ -34,14 +34,14 @@ mangadex.newBookmarklet(
 
 		function parseDescription(
 			element: HTMLDivElement,
-			description: string
+			description: string,
 		): string {
 			const volumeElement = element.parentElement?.querySelector(
-				'.volume-num input'
+				'.volume-num input',
 			) as HTMLInputElement;
 			const volume = volumeElement?.value;
 			const languageElement = element.parentElement?.querySelector(
-				'.md-select .md-select-inner-wrap .placeholder-text'
+				'.md-select .md-select-inner-wrap .placeholder-text',
 			) as HTMLDivElement;
 			const language = languageElement?.innerText;
 
@@ -67,7 +67,7 @@ mangadex.newBookmarklet(
 					let changed = true;
 					const save =
 						element?.parentElement?.parentElement?.parentElement?.parentElement?.querySelector(
-							'button.primary'
+							'button.primary',
 						);
 					if (!(element as HTMLTextAreaElement).value)
 						(element as HTMLTextAreaElement).value = description;
@@ -79,5 +79,5 @@ mangadex.newBookmarklet(
 			});
 		}
 	},
-	{ titlePage: true, editPage: true, createPage: true }
+	{ titlePage: true, editPage: true, createPage: true },
 );

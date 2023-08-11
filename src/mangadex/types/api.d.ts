@@ -1,26 +1,26 @@
-export type Status = 'ongoing' | 'completed' | 'hiatus' | 'cancelled';
+type Status = 'ongoing' | 'completed' | 'hiatus' | 'cancelled';
 
-export type PublicationDemographic =
+type PublicationDemographic =
 	| 'shounen'
 	| 'shoujo'
 	| 'josei'
 	| 'seinen'
 	| 'none';
 
-export type ContentRating = 'safe' | 'suggestive' | 'erotica' | 'pornographic';
+type ContentRating = 'safe' | 'suggestive' | 'erotica' | 'pornographic';
 
-export interface LocalisedStringObject {
+interface LocalisedStringObject {
 	[key: string]: string;
 }
 
-export interface Relationship {
+interface Relationship {
 	id: string;
 	type: string;
 	related?: string;
 	attributes?: unknown;
 }
 
-export interface Tag {
+interface Tag {
 	id: string;
 	type: 'tag';
 	attributes: {
@@ -32,9 +32,9 @@ export interface Tag {
 	relationships: Array<Relationship>;
 }
 
-export type State = 'draft' | 'submitted' | 'published' | 'rejected';
+type State = 'draft' | 'submitted' | 'published' | 'rejected';
 
-export interface MangaType {
+interface MangaType {
 	id: string;
 	type: 'manga';
 	attributes: {
@@ -61,13 +61,13 @@ export interface MangaType {
 	relationships: Array<Relationship>;
 }
 
-export interface MangaResponse {
+interface MangaResponse {
 	result: 'ok';
 	response: 'entity';
 	data: MangaType;
 }
 
-export interface MangaListResponse {
+interface MangaListResponse {
 	result: 'ok';
 	response: 'collection';
 	data: Array<MangaType>;
@@ -99,3 +99,18 @@ interface CoverListResponse {
 	offset: number;
 	total: number;
 }
+
+export {
+	Status,
+	PublicationDemographic,
+	ContentRating,
+	LocalisedStringObject,
+	Relationship,
+	Tag,
+	State,
+	MangaType,
+	MangaResponse,
+	MangaListResponse,
+	CoverType,
+	CoverListResponse,
+};

@@ -54,5 +54,5 @@ mangadex.newBookmarklet(
 			return alert('No links changed!');
 		console.log('Changed links:', changedLinks);
 	},
-	{ titlePage: true, editPage: true, createPage: true }
+	{ titlePage: true, editPage: true, createPage: true },
 );

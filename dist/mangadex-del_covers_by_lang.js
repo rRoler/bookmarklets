@@ -4,7 +4,7 @@
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
-  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
+  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
 function getMatch(string, regex, index = 0) {
@@ -16,8 +16,9 @@ const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/,
 const newBookmarklet = (code, settings = {}) => {
   newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
-    if (settings.titlePage && !titleId && !isCreatePage) return alert('This is not a title page!');
-    if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert('This is not an edit page!');
+    const noticePart = 'You can execute this bookmarklet only on ';
+    if (settings.titlePage && !titleId && !isCreatePage) return alert(noticePart + 'a title page!');
+    if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert(noticePart + 'an edit page!');
     code();
   });
 };

@@ -12,30 +12,31 @@ const newBookmarklet = (
 		titlePage?: boolean;
 		createPage?: boolean;
 		editPage?: boolean;
-	} = {}
+	} = {},
 ): void => {
 	BM.newBookmarklet('^mangadex.org|canary.mangadex.dev', () => {
 		const isCreatePage =
 			settings.createPage && /\/create\//.test(window.location.pathname);
 
+		const noticePart = 'You can execute this bookmarklet only on ';
 		if (settings.titlePage && !titleId && !isCreatePage)
-			return alert('This is not a title page!');
+			return alert(noticePart + 'a title page!');
 		if (
 			settings.editPage &&
 			!/\/edit\//.test(window.location.pathname) &&
 			!isCreatePage
 		)
-			return alert('This is not an edit page!');
+			return alert(noticePart + 'an edit page!');
 		code();
 	});
 };
 
 const getAuthToken = () =>
 	BM.parseStorage(
-		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable'
+		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable',
 	) ||
 	BM.parseStorage(
-		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary'
+		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary',
 	);
 
 function fetchTitleInfo(): Promise<Api.MangaResponse> {
@@ -49,13 +50,13 @@ function fetchTitleInfo(): Promise<Api.MangaResponse> {
 						? `${authToken.token_type} ${authToken.access_token}`
 						: '',
 				},
-			}
+			},
 		)
 			.then((rsp) => resolve(rsp.json()))
 			.catch((e) => {
 				alert('Failed to fetch title info!');
 				reject(e);
-			})
+			}),
 	);
 }
 

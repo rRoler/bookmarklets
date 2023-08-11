@@ -21,7 +21,7 @@ mangadex.newBookmarklet(() => {
 			(element as HTMLDivElement).style.getPropertyValue('background-image');
 		if (
 			!/\/covers\/+[-0-9a-f]{20,}\/+[-0-9a-f]{20,}[^/]+(?:[?#].*)?$/.test(
-				imageSource
+				imageSource,
 			) ||
 			element.classList.contains('banner-image')
 		)
@@ -31,7 +31,7 @@ mangadex.newBookmarklet(() => {
 			BM.getMatch(
 				imageSource,
 				/([-0-9a-f]{20,}\.[^/.]*)\.[0-9]+\.[^/.?#]*([?#].*)?$/,
-				1
+				1,
 			) || BM.getMatch(imageSource, /[-0-9a-f]{20,}\.[^/.]*?$/);
 		if (!mangaId || !coverFileName) return;
 		const addCoverFileName = (fileNames: Map<string, Set<string>>): void => {
@@ -51,7 +51,7 @@ mangadex.newBookmarklet(() => {
 	if (coverFileNames.size <= 0) {
 		if (document.querySelector('[cover-data-bookmarklet="executed"]'))
 			return alert(
-				'No new covers were found on this page since the last time this bookmarklet was executed!'
+				'No new covers were found on this page since the last time this bookmarklet was executed!',
 			);
 		return alert('No covers were found on this page!');
 	}
@@ -68,6 +68,7 @@ mangadex.newBookmarklet(() => {
 	getAllCoverData()
 		.then((covers) => {
 			let addedCoverData = 0;
+			let failedCoverData = 0;
 			const coverImagesContainer = document.createElement('div');
 			BM.setStyle(coverImagesContainer, {
 				width: 'fit-content',
@@ -83,75 +84,93 @@ mangadex.newBookmarklet(() => {
 				const imageSource =
 					(element as HTMLImageElement).src ||
 					(element as HTMLDivElement).style.getPropertyValue(
-						'background-image'
+						'background-image',
 					);
-				covers.forEach((cover) => {
-					const coverManga = cover.relationships.find(
-						(relationship) => relationship.type === 'manga'
+				let coverManga: Api.Relationship | undefined;
+				const cover = covers.find((cover) => {
+					coverManga = cover.relationships.find(
+						(relationship) => relationship.type === 'manga',
 					);
-					if (!coverManga) return;
 					if (
+						coverManga &&
 						new RegExp(`${coverManga.id}/${cover.attributes.fileName}`).test(
-							imageSource
+							imageSource,
 						)
-					) {
-						const fullSizeImage = new Image();
-						coverImagesContainer.appendChild(fullSizeImage);
-
-						try {
-							new ResizeObserver((entries, observer) => {
-								const fullSizeImageWidth = fullSizeImage.naturalWidth;
-								const fullSizeImageHeight = fullSizeImage.naturalHeight;
-								if (fullSizeImageWidth > 0 && fullSizeImageHeight > 0) {
-									observer.disconnect();
-									fullSizeImage.remove();
-									fullSizeImage.src =
-										'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
-									if (coverImagesContainer.children.length <= 0)
-										coverImagesContainer.remove();
-									displayCoverData(
-										element,
-										fullSizeImageWidth,
-										fullSizeImageHeight,
-										cover
-									);
-									progressBar.update(
-										(++addedCoverData / coverElements.length) * 100
-									);
-								}
-							}).observe(fullSizeImage);
-						} catch (e) {
-							fullSizeImage.onload = () => {
-								fullSizeImage.remove();
-								if (coverImagesContainer.children.length <= 0)
-									coverImagesContainer.remove();
-								displayCoverData(
-									element,
-									fullSizeImage.naturalWidth,
-									fullSizeImage.naturalHeight,
-									cover
-								);
-								progressBar.update(
-									(++addedCoverData / coverElements.length) * 100
-								);
-							};
-						}
-
-						fullSizeImage.src = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
-					}
+					)
+						return cover;
 				});
+
+				if (!cover || !coverManga) {
+					++failedCoverData;
+					reportFailed();
+					return;
+				}
+
+				function reportFailed() {
+					if (addedCoverData + failedCoverData >= coverElements.length) {
+						if (failedCoverData > 0)
+							throw new Error(
+								`${failedCoverData} primary covers were changed after the page loaded and before the bookmarklet was executed.\nReload the page and execute the bookmarklet again!`,
+							);
+						progressBar.remove();
+					}
+				}
+
+				const fullSizeImage = new Image();
+				coverImagesContainer.appendChild(fullSizeImage);
+
+				try {
+					new ResizeObserver((entries, observer) => {
+						const fullSizeImageWidth = fullSizeImage.naturalWidth;
+						const fullSizeImageHeight = fullSizeImage.naturalHeight;
+						if (fullSizeImageWidth > 0 && fullSizeImageHeight > 0) {
+							observer.disconnect();
+							fullSizeImage.remove();
+							fullSizeImage.src =
+								'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
+							if (coverImagesContainer.children.length <= 0)
+								coverImagesContainer.remove();
+							displayCoverData(
+								element,
+								fullSizeImageWidth,
+								fullSizeImageHeight,
+								cover,
+							);
+							progressBar.update(
+								(++addedCoverData / coverElements.length) * 100,
+							);
+							reportFailed();
+						}
+					}).observe(fullSizeImage);
+				} catch (e) {
+					fullSizeImage.onload = () => {
+						fullSizeImage.remove();
+						if (coverImagesContainer.children.length <= 0)
+							coverImagesContainer.remove();
+						displayCoverData(
+							element,
+							fullSizeImage.naturalWidth,
+							fullSizeImage.naturalHeight,
+							cover,
+						);
+						progressBar.update((++addedCoverData / coverElements.length) * 100);
+						reportFailed();
+					};
+				}
+
+				fullSizeImage.src = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
 			});
 		})
 		.catch((e) => {
 			console.error(e);
-			alert('Failed to fetch cover data!');
+			alert('Failed to fetch cover data!\n' + e.message);
 		});
 
 	function displayCoverData(
 		element: HTMLImageElement | HTMLDivElement,
 		fullSizeImageWidth: number,
 		fullSizeImageHeight: number,
-		cover: Api.CoverType
+		cover: Api.CoverType,
 	) {
 		element.setAttribute('cover-data-cover-id', cover.id);
 		const descriptionShowElement = document.createElement('span');
@@ -176,7 +195,7 @@ mangadex.newBookmarklet(() => {
 
 			descriptionShowElement.setAttribute(
 				'title',
-				cover.attributes.description
+				cover.attributes.description,
 			);
 			descriptionShowElementSvg.addEventListener('click', showDescriptions);
 			descriptionShowElement.appendChild(descriptionShowElementSvg);
@@ -199,7 +218,7 @@ mangadex.newBookmarklet(() => {
 				'z-index': '4',
 			});
 			descriptionElement.addEventListener('click', (e) =>
-				showDescriptions(e, false)
+				showDescriptions(e, false),
 			);
 			descriptionElement.appendChild(descriptionTextElement);
 		}
@@ -214,7 +233,7 @@ mangadex.newBookmarklet(() => {
 					.writeText(ids)
 					.then(
 						() => console.debug(`Copied cover ids: ${ids}`),
-						() => console.error(`Failed to copy cover ids: ${ids}`)
+						() => console.error(`Failed to copy cover ids: ${ids}`),
 					)
 					.catch(console.error);
 			};
@@ -318,7 +337,7 @@ mangadex.newBookmarklet(() => {
 					} else {
 						(rsp.data as Api.MangaListResponse['data']).forEach((manga) => {
 							const cover = manga.relationships.find(
-								(relationship) => relationship.type === 'cover_art'
+								(relationship) => relationship.type === 'cover_art',
 							) as Api.CoverType | undefined;
 							if (cover) {
 								cover.relationships = [{ type: manga.type, id: manga.id }];
@@ -339,7 +358,7 @@ mangadex.newBookmarklet(() => {
 	function getCoverData(
 		ids: Array<string>,
 		endpoint: string,
-		offset = 0
+		offset = 0,
 	): Promise<Api.MangaListResponse | Api.CoverListResponse> {
 		return new Promise((resolve, reject) => {
 			const isCoverEndpoint = endpoint === 'cover';
@@ -351,7 +370,7 @@ mangadex.newBookmarklet(() => {
 				url = `https://api.mangadex.org/${endpoint}?order[volume]=asc&${mangaIdsQuery}&limit=${requestLimit}&offset=${offset}`;
 			if (offset > maxRequestOffset)
 				return reject(
-					new Error(`Offset is bigger than ${maxRequestOffset}:\n ${url}`)
+					new Error(`Offset is bigger than ${maxRequestOffset}:\n ${url}`),
 				);
 			fetch(url)
 				.then((rsp) => resolve(rsp.json()))

@@ -4,7 +4,7 @@
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
-  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
+  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
 function getMatch(string, regex, index = 0) {
@@ -44,8 +44,9 @@ const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/,
 const newBookmarklet = (code, settings = {}) => {
   newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
-    if (settings.titlePage && !titleId && !isCreatePage) return alert('This is not a title page!');
-    if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert('This is not an edit page!');
+    const noticePart = 'You can execute this bookmarklet only on ';
+    if (settings.titlePage && !titleId && !isCreatePage) return alert(noticePart + 'a title page!');
+    if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert(noticePart + 'an edit page!');
     code();
   });
 };
@@ -156,6 +157,7 @@ newBookmarklet(() => {
   });
   getAllCoverData().then(covers => {
     let addedCoverData = 0;
+    let failedCoverData = 0;
     const coverImagesContainer = document.createElement('div');
     setStyle(coverImagesContainer, {
       width: 'fit-content',
@@ -169,40 +171,52 @@ newBookmarklet(() => {
     document.body.appendChild(coverImagesContainer);
     coverElements.forEach(element => {
       const imageSource = element.src || element.style.getPropertyValue('background-image');
-      covers.forEach(cover => {
-        const coverManga = cover.relationships.find(relationship => relationship.type === 'manga');
-        if (!coverManga) return;
-        if (new RegExp(`${coverManga.id}/${cover.attributes.fileName}`).test(imageSource)) {
-          const fullSizeImage = new Image();
-          coverImagesContainer.appendChild(fullSizeImage);
-          try {
-            new ResizeObserver((entries, observer) => {
-              const fullSizeImageWidth = fullSizeImage.naturalWidth;
-              const fullSizeImageHeight = fullSizeImage.naturalHeight;
-              if (fullSizeImageWidth > 0 && fullSizeImageHeight > 0) {
-                observer.disconnect();
-                fullSizeImage.remove();
-                fullSizeImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
-                if (coverImagesContainer.children.length <= 0) coverImagesContainer.remove();
-                displayCoverData(element, fullSizeImageWidth, fullSizeImageHeight, cover);
-                progressBar.update(++addedCoverData / coverElements.length * 100);
-              }
-            }).observe(fullSizeImage);
-          } catch (e) {
-            fullSizeImage.onload = () => {
-              fullSizeImage.remove();
-              if (coverImagesContainer.children.length <= 0) coverImagesContainer.remove();
-              displayCoverData(element, fullSizeImage.naturalWidth, fullSizeImage.naturalHeight, cover);
-              progressBar.update(++addedCoverData / coverElements.length * 100);
-            };
-          }
-          fullSizeImage.src = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
-        }
+      let coverManga;
+      const cover = covers.find(cover => {
+        coverManga = cover.relationships.find(relationship => relationship.type === 'manga');
+        if (coverManga && new RegExp(`${coverManga.id}/${cover.attributes.fileName}`).test(imageSource)) return cover;
       });
+      if (!cover || !coverManga) {
+        ++failedCoverData;
+        reportFailed();
+        return;
+      }
+      function reportFailed() {
+        if (addedCoverData + failedCoverData >= coverElements.length) {
+          if (failedCoverData > 0) throw new Error(`${failedCoverData} primary covers were changed after the page loaded and before the bookmarklet was executed.\nReload the page and execute the bookmarklet again!`);
+          progressBar.remove();
+        }
+      }
+      const fullSizeImage = new Image();
+      coverImagesContainer.appendChild(fullSizeImage);
+      try {
+        new ResizeObserver((entries, observer) => {
+          const fullSizeImageWidth = fullSizeImage.naturalWidth;
+          const fullSizeImageHeight = fullSizeImage.naturalHeight;
+          if (fullSizeImageWidth > 0 && fullSizeImageHeight > 0) {
+            observer.disconnect();
+            fullSizeImage.remove();
+            fullSizeImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
+            if (coverImagesContainer.children.length <= 0) coverImagesContainer.remove();
+            displayCoverData(element, fullSizeImageWidth, fullSizeImageHeight, cover);
+            progressBar.update(++addedCoverData / coverElements.length * 100);
+            reportFailed();
+          }
+        }).observe(fullSizeImage);
+      } catch (e) {
+        fullSizeImage.onload = () => {
+          fullSizeImage.remove();
+          if (coverImagesContainer.children.length <= 0) coverImagesContainer.remove();
+          displayCoverData(element, fullSizeImage.naturalWidth, fullSizeImage.naturalHeight, cover);
+          progressBar.update(++addedCoverData / coverElements.length * 100);
+          reportFailed();
+        };
+      }
+      fullSizeImage.src = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
     });
   }).catch(e => {
     console.error(e);
-    alert('Failed to fetch cover data!');
+    alert('Failed to fetch cover data!\n' + e.message);
   });
   function displayCoverData(element, fullSizeImageWidth, fullSizeImageHeight, cover) {
     element.setAttribute('cover-data-cover-id', cover.id);

@@ -21,6 +21,6 @@ module.exports = {
 		//'linebreak-style': ['error', 'unix'],
 		quotes: ['error', 'single'],
 		semi: ['error', 'always'],
-		'@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': 'off' }],
+		'@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': false }],
 	},
 };

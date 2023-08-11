@@ -28,13 +28,13 @@ mangadex.newBookmarklet(
 		mangadex.fetchTitleInfo().then((titleInfo: Api.MangaResponse) => {
 			if (
 				!titleInfo.data.attributes.tags.some(
-					(tag) => tag.attributes.name.en === 'Adaptation'
+					(tag) => tag.attributes.name.en === 'Adaptation',
 				)
 			)
 				delete websites.nu;
 
 			const missingWebsites = Object.keys(websites).filter(
-				(website) => !titleInfo.data.attributes.links[website]
+				(website) => !titleInfo.data.attributes.links[website],
 			);
 			if (missingWebsites.length <= 0)
 				return alert('All links are already added!');
@@ -43,7 +43,7 @@ mangadex.newBookmarklet(
 			let originalTitle = undefined;
 			try {
 				originalTitle = titleInfo.data.attributes.altTitles.find(
-					(title) => title[originalLang]
+					(title) => title[originalLang],
 				);
 			} catch (e) {
 				console.debug('No alt titles found');
@@ -56,9 +56,9 @@ mangadex.newBookmarklet(
 			if (!title) return;
 
 			missingWebsites.forEach((website) =>
-				window.open(websites[website] + title, '_blank', 'noopener,noreferrer')
+				window.open(websites[website] + title, '_blank', 'noopener,noreferrer'),
 			);
 		});
 	},
-	{ titlePage: true, createPage: true }
+	{ titlePage: true, createPage: true },
 );

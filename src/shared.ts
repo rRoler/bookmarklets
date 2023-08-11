@@ -1,16 +1,16 @@
 function newBookmarklet(
 	websiteRegex: string | RegExp,
-	code: VoidFunction
+	code: VoidFunction,
 ): void {
 	if (!new RegExp(websiteRegex).test(window.location.hostname))
-		return alert('Bookmarklet executed on a wrong website!');
+		return alert('Bookmarklet executed on the wrong website!');
 	code();
 }
 
 function getMatch(
 	string: string,
 	regex: RegExp,
-	index = 0
+	index = 0,
 ): string | undefined {
 	const regexMatches = string.match(regex);
 	if (regexMatches && regexMatches[index]) return regexMatches[index];
@@ -18,7 +18,7 @@ function getMatch(
 
 function splitArray(
 	array: Array<unknown>,
-	chunkSize = 100
+	chunkSize = 100,
 ): Array<Array<unknown>> {
 	const arrayCopy = [...array];
 	const resArray = [];
@@ -28,7 +28,7 @@ function splitArray(
 
 function waitForElement(
 	querySelectors: string,
-	noElement = false
+	noElement = false,
 ): Promise<Element | null> {
 	let element = document.body.querySelector(querySelectors);
 	return new Promise((resolve) => {
@@ -68,7 +68,7 @@ function createSVG({
 	svg.setAttribute('stroke', stroke);
 	const svgPath = document.createElementNS(
 		'http://www.w3.org/2000/svg',
-		'path'
+		'path',
 	);
 	svgPath.setAttribute('stroke-linecap', strokeLinecap);
 	svgPath.setAttribute('stroke-linejoin', strokeLinejoin);
@@ -79,7 +79,7 @@ function createSVG({
 
 function setStyle(
 	element: HTMLElement | SVGSVGElement,
-	styles: Record<string, string>
+	styles: Record<string, string>,
 ) {
 	for (const style in styles) element.style.setProperty(style, styles[style]);
 }

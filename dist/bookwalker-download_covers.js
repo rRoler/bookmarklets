@@ -4,7 +4,7 @@
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
-  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on a wrong website!');
+  if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
 function getMatch(string, regex, index = 0) {

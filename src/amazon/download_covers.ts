@@ -17,11 +17,10 @@ amazon.newBookmarklet(() => {
 				fetch(url)
 					.then((rsp) => rsp.blob())
 					.then((blob) => {
-						if (blob.size < 50)
-							throw new Error('cover is smaller than 50 bytes');
+						if (blob.size < 1024) throw new Error('cover is smaller than 1 KB');
 						resolve(blob);
 					})
-					.catch((e) => reject('Failed to fetch cover!\n' + e))
+					.catch((e) => reject('Failed to fetch cover!\n' + e)),
 			);
 
 		return new Promise((resolve, reject) => {
@@ -54,12 +53,12 @@ amazon.newBookmarklet(() => {
 
 	if (books.length > 0) {
 		const asins = Array.from(books).map((book) =>
-			getAsin((book as HTMLAnchorElement).href)
+			getAsin((book as HTMLAnchorElement).href),
 		) as Array<string | undefined>;
 		if (
 			books.length > zipAmount &&
 			confirm(
-				`Since you're downloading more than ${zipAmount} covers, would you like to zip them?`
+				`Since you're downloading more than ${zipAmount} covers, would you like to zip them?`,
 			)
 		)
 			return zipCovers(asins);
@@ -94,11 +93,11 @@ amazon.newBookmarklet(() => {
 				if (final) {
 					fileSaver.saveAs(
 						new Blob(chunks, { type: 'application/zip' }),
-						'covers.zip'
+						'covers.zip',
 					);
 					progressBar.remove();
 				}
-			}
+			},
 		);
 
 		asins.forEach(async (asin) => {
