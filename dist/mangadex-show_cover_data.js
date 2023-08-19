@@ -117,6 +117,7 @@ class SimpleProgressBar {
 }
 
 newBookmarklet(() => {
+  const maxCoverRetry = 4;
   const requestLimit = 100;
   const maxRequestOffset = 1000;
   const coverElements = [];
@@ -177,33 +178,29 @@ newBookmarklet(() => {
         if (coverManga && new RegExp(`${coverManga.id}/${cover.attributes.fileName}`).test(imageSource)) return cover;
       });
       if (!cover || !coverManga) {
+        console.error(`Element changed primary cover image: ${element}`);
         ++failedCoverData;
         reportFailed();
         return;
       }
+      let coverRetry = 0;
+      const coverUrl = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
+      const replacementCoverUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
+      const fullSizeImage = new Image();
+      fullSizeImage.setAttribute('cover-data-bookmarklet', 'executed');
+      coverImagesContainer.appendChild(fullSizeImage);
       function reportFailed() {
         if (addedCoverData + failedCoverData >= coverElements.length) {
-          if (failedCoverData > 0) throw new Error(`${failedCoverData} primary covers were changed after the page loaded and before the bookmarklet was executed.\nReload the page and execute the bookmarklet again!`);
           progressBar.remove();
+          if (failedCoverData > 0) alert(`${failedCoverData} cover images failed to load.\n\nReload the page and execute the bookmarklet again!`);
         }
       }
-      const fullSizeImage = new Image();
-      coverImagesContainer.appendChild(fullSizeImage);
-      try {
-        new ResizeObserver((entries, observer) => {
-          const fullSizeImageWidth = fullSizeImage.naturalWidth;
-          const fullSizeImageHeight = fullSizeImage.naturalHeight;
-          if (fullSizeImageWidth > 0 && fullSizeImageHeight > 0) {
-            observer.disconnect();
-            fullSizeImage.remove();
-            fullSizeImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
-            if (coverImagesContainer.children.length <= 0) coverImagesContainer.remove();
-            displayCoverData(element, fullSizeImageWidth, fullSizeImageHeight, cover);
-            progressBar.update(++addedCoverData / coverElements.length * 100);
-            reportFailed();
-          }
-        }).observe(fullSizeImage);
-      } catch (e) {
+      function fallbackMethod() {
+        fullSizeImage.onerror = () => {
+          console.error(`Cover image failed to load: ${coverUrl}`);
+          ++failedCoverData;
+          reportFailed();
+        };
         fullSizeImage.onload = () => {
           fullSizeImage.remove();
           if (coverImagesContainer.children.length <= 0) coverImagesContainer.remove();
@@ -212,7 +209,31 @@ newBookmarklet(() => {
           reportFailed();
         };
       }
-      fullSizeImage.src = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
+      try {
+        fullSizeImage.onerror = () => {
+          console.warn(`Cover image failed to load: ${coverUrl}.\nRetrying...`);
+          fullSizeImage.removeAttribute('src');
+          if (++coverRetry >= maxCoverRetry) fallbackMethod();
+          fullSizeImage.setAttribute('src', coverUrl);
+        };
+        new ResizeObserver((_entries, observer) => {
+          if (coverRetry >= maxCoverRetry) return observer.disconnect();
+          const fullSizeImageWidth = fullSizeImage.naturalWidth;
+          const fullSizeImageHeight = fullSizeImage.naturalHeight;
+          if (fullSizeImageWidth > 0 && fullSizeImageHeight > 0) {
+            observer.disconnect();
+            fullSizeImage.remove();
+            fullSizeImage.src = replacementCoverUrl;
+            if (coverImagesContainer.children.length <= 0) coverImagesContainer.remove();
+            displayCoverData(element, fullSizeImageWidth, fullSizeImageHeight, cover);
+            progressBar.update(++addedCoverData / coverElements.length * 100);
+            reportFailed();
+          }
+        }).observe(fullSizeImage);
+      } catch (e) {
+        fallbackMethod();
+      }
+      fullSizeImage.src = coverUrl;
     });
   }).catch(e => {
     console.error(e);

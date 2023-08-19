@@ -4,6 +4,7 @@ import * as Api from './types/api';
 import SimpleProgressBar from '../components/progress_bars';
 
 mangadex.newBookmarklet(() => {
+	const maxCoverRetry = 4;
 	const requestLimit = 100;
 	const maxRequestOffset = 1000;
 	const coverElements: Array<HTMLImageElement | HTMLDivElement> = [];
@@ -69,6 +70,7 @@ mangadex.newBookmarklet(() => {
 		.then((covers) => {
 			let addedCoverData = 0;
 			let failedCoverData = 0;
+
 			const coverImagesContainer = document.createElement('div');
 			BM.setStyle(coverImagesContainer, {
 				width: 'fit-content',
@@ -80,6 +82,7 @@ mangadex.newBookmarklet(() => {
 				'pointer-events': 'none',
 			});
 			document.body.appendChild(coverImagesContainer);
+
 			coverElements.forEach((element) => {
 				const imageSource =
 					(element as HTMLImageElement).src ||
@@ -101,33 +104,71 @@ mangadex.newBookmarklet(() => {
 				});
 
 				if (!cover || !coverManga) {
+					console.error(`Element changed primary cover image: ${element}`);
 					++failedCoverData;
 					reportFailed();
 					return;
 				}
 
+				let coverRetry = 0;
+				const coverUrl = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
+				const replacementCoverUrl =
+					'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
+				const fullSizeImage = new Image();
+				fullSizeImage.setAttribute('cover-data-bookmarklet', 'executed');
+				coverImagesContainer.appendChild(fullSizeImage);
+
 				function reportFailed() {
 					if (addedCoverData + failedCoverData >= coverElements.length) {
-						if (failedCoverData > 0)
-							throw new Error(
-								`${failedCoverData} primary covers were changed after the page loaded and before the bookmarklet was executed.\nReload the page and execute the bookmarklet again!`,
-							);
 						progressBar.remove();
+						if (failedCoverData > 0)
+							alert(
+								`${failedCoverData} cover images failed to load.\n\nReload the page and execute the bookmarklet again!`,
+							);
 					}
 				}
 
-				const fullSizeImage = new Image();
-				coverImagesContainer.appendChild(fullSizeImage);
+				function fallbackMethod() {
+					fullSizeImage.onerror = () => {
+						console.error(`Cover image failed to load: ${coverUrl}`);
+						++failedCoverData;
+						reportFailed();
+					};
+
+					fullSizeImage.onload = () => {
+						fullSizeImage.remove();
+						if (coverImagesContainer.children.length <= 0)
+							coverImagesContainer.remove();
+						displayCoverData(
+							element,
+							fullSizeImage.naturalWidth,
+							fullSizeImage.naturalHeight,
+							cover!,
+						);
+						progressBar.update((++addedCoverData / coverElements.length) * 100);
+						reportFailed();
+					};
+				}
 
 				try {
-					new ResizeObserver((entries, observer) => {
+					fullSizeImage.onerror = () => {
+						console.warn(
+							`Cover image failed to load: ${coverUrl}.\nRetrying...`,
+						);
+						fullSizeImage.removeAttribute('src');
+						if (++coverRetry >= maxCoverRetry) fallbackMethod();
+						fullSizeImage.setAttribute('src', coverUrl);
+					};
+
+					new ResizeObserver((_entries, observer) => {
+						if (coverRetry >= maxCoverRetry) return observer.disconnect();
+
 						const fullSizeImageWidth = fullSizeImage.naturalWidth;
 						const fullSizeImageHeight = fullSizeImage.naturalHeight;
 						if (fullSizeImageWidth > 0 && fullSizeImageHeight > 0) {
 							observer.disconnect();
 							fullSizeImage.remove();
-							fullSizeImage.src =
-								'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
+							fullSizeImage.src = replacementCoverUrl;
 							if (coverImagesContainer.children.length <= 0)
 								coverImagesContainer.remove();
 							displayCoverData(
@@ -143,22 +184,10 @@ mangadex.newBookmarklet(() => {
 						}
 					}).observe(fullSizeImage);
 				} catch (e) {
-					fullSizeImage.onload = () => {
-						fullSizeImage.remove();
-						if (coverImagesContainer.children.length <= 0)
-							coverImagesContainer.remove();
-						displayCoverData(
-							element,
-							fullSizeImage.naturalWidth,
-							fullSizeImage.naturalHeight,
-							cover,
-						);
-						progressBar.update((++addedCoverData / coverElements.length) * 100);
-						reportFailed();
-					};
+					fallbackMethod();
 				}
 
-				fullSizeImage.src = `https://mangadex.org/covers/${coverManga.id}/${cover.attributes.fileName}`;
+				fullSizeImage.src = coverUrl;
 			});
 		})
 		.catch((e) => {
