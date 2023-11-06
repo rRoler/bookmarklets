@@ -62,7 +62,7 @@ mangadex.newBookmarklet(
 
 		function setDescription(description: string): Promise<boolean> {
 			return new Promise((resolve) => {
-				const selectors = 'textarea[placeholder="Cover Information"]';
+				const selectors = '.md-modal__box .md-textarea__input';
 				BM.waitForElement(selectors).then((element) => {
 					let changed = true;
 					const save =

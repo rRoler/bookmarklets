@@ -243,7 +243,7 @@ mangadex.newBookmarklet(() => {
 				display: 'none',
 				'align-items': 'center',
 				'justify-content': 'center',
-				'background-color': 'var(--md-accent)',
+				'background-color': 'rgb(var(--md-accent))',
 				'z-index': '4',
 			});
 			descriptionElement.addEventListener('click', (e) =>
@@ -302,28 +302,31 @@ mangadex.newBookmarklet(() => {
 				'border-top-right-radius': '0.25rem',
 				'border-top-left-radius': '0.25rem',
 			});
-			BM.setStyle(iconsElement, {
-				position: 'absolute',
-				top: '0',
-				right: '0',
-				padding: '0.45rem 0.5rem',
-				color: '#fff',
-			});
+
+			element.parentElement?.appendChild(sizeElement);
+
 			if (cover.attributes.description) {
-				descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
+				BM.setStyle(iconsElement, {
+					position: 'absolute',
+					top: '0',
+					right: '0',
+					padding: '0.45rem 0.5rem',
+					color: '#fff',
+				});
 				BM.setStyle(descriptionShowElementSvg, {
 					width: '1.5rem',
 					height: '1.5rem',
 				});
+				descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
 				BM.setStyle(descriptionElement, { 'border-radius': '0.25rem' });
-				element.parentElement?.append(descriptionElement);
+
 				iconsElement.appendChild(descriptionShowElement);
+				element.parentElement?.append(iconsElement, descriptionElement);
 			}
-			element.parentElement?.append(sizeElement, iconsElement);
 		} else {
 			BM.setStyle(sizeElement, {
 				padding: '0 0.2rem',
-				'background-color': 'var(--md-accent)',
+				'background-color': 'rgb(var(--md-accent))',
 				'border-bottom-left-radius': '4px',
 				'border-bottom-right-radius': '4px',
 			});
@@ -342,8 +345,8 @@ mangadex.newBookmarklet(() => {
 				});
 				element.appendChild(descriptionElement);
 				iconsElement.appendChild(descriptionShowElement);
+				sizeElement.appendChild(iconsElement);
 			}
-			sizeElement.appendChild(iconsElement);
 			element.appendChild(sizeElement);
 		}
 	}
@@ -391,19 +394,32 @@ mangadex.newBookmarklet(() => {
 	): Promise<Api.MangaListResponse | Api.CoverListResponse> {
 		return new Promise((resolve, reject) => {
 			const isCoverEndpoint = endpoint === 'cover';
-			const mangaIdsQuery = ids
-				.map((id) => (isCoverEndpoint ? `manga[]=${id}` : `ids[]=${id}`))
-				.join('&');
-			let url = `https://api.mangadex.org/${endpoint}?${mangaIdsQuery}&includes[]=cover_art&limit=${requestLimit}&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic&offset=${offset}`;
-			if (isCoverEndpoint)
-				url = `https://api.mangadex.org/${endpoint}?order[volume]=asc&${mangaIdsQuery}&limit=${requestLimit}&offset=${offset}`;
 			if (offset > maxRequestOffset)
-				return reject(
-					new Error(`Offset is bigger than ${maxRequestOffset}:\n ${url}`),
-				);
-			fetch(url)
-				.then((rsp) => resolve(rsp.json()))
-				.catch(reject);
+				return reject(new Error(`Offset is bigger than ${maxRequestOffset}!`));
+
+			if (isCoverEndpoint)
+				mangadex.api
+					.getCoverList({
+						mangaIds: ids,
+						order: {
+							volume: 'asc',
+						},
+						offset: offset,
+						limit: requestLimit,
+					})
+					.then(resolve)
+					.catch(reject);
+			else
+				mangadex.api
+					.getMangaList({
+						ids: ids,
+						includes: ['cover_art'],
+						contentRating: ['safe', 'suggestive', 'erotica', 'pornographic'],
+						offset: offset,
+						limit: requestLimit,
+					})
+					.then(resolve)
+					.catch(reject);
 		});
 	}
 });

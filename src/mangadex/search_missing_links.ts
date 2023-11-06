@@ -25,7 +25,7 @@ mangadex.newBookmarklet(
 			return;
 		}
 
-		mangadex.fetchTitleInfo().then((titleInfo: Api.MangaResponse) => {
+		mangadex.api.getManga().then((titleInfo: Api.MangaResponse) => {
 			if (
 				!titleInfo.data.attributes.tags.some(
 					(tag) => tag.attributes.name.en === 'Adaptation',

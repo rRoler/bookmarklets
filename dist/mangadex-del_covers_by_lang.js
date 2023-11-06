@@ -12,12 +12,16 @@ function getMatch(string, regex, index = 0) {
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
 
-const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
+const pageInfo = {
+  titleId: getMatch(window.location.pathname, /\/title\/(?:edit\/)?([-0-9a-f]{20,})/, 1),
+  isDraft: /draft=true/.test(window.location.search)
+};
+
 const newBookmarklet = (code, settings = {}) => {
   newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
     const noticePart = 'You can execute this bookmarklet only on ';
-    if (settings.titlePage && !titleId && !isCreatePage) return alert(noticePart + 'a title page!');
+    if (settings.titlePage && !pageInfo.titleId && !isCreatePage) return alert(noticePart + 'a title page!');
     if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert(noticePart + 'an edit page!');
     code();
   });

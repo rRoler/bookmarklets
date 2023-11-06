@@ -1,5 +1,5 @@
 Name: fflate
-Version: 0.8.0
+Version: 0.8.1
 License: MIT
 Private: false
 Description: High performance (de)compression in an 8kB package
@@ -11,7 +11,7 @@ License Copyright:
 
 MIT License
 
-Copyright (c) 2020 Arjun Barrett
+Copyright (c) 2023 Arjun Barrett
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

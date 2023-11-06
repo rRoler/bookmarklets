@@ -84,6 +84,22 @@ function setStyle(
 	for (const style in styles) element.style.setProperty(style, styles[style]);
 }
 
+function createUrl(
+	base: string,
+	path = '/',
+	query: Record<string, string | number | Array<string>> = {},
+) {
+	const url = new URL(base);
+	url.pathname = path;
+	for (const key in query) {
+		const value = query[key];
+		if (Array.isArray(value)) {
+			for (const item of value) url.searchParams.append(key, item);
+		} else url.searchParams.set(key, value.toString());
+	}
+	return url;
+}
+
 export {
 	newBookmarklet,
 	getMatch,
@@ -92,4 +108,5 @@ export {
 	parseStorage,
 	createSVG,
 	setStyle,
+	createUrl,
 };

@@ -100,6 +100,29 @@ interface CoverListResponse {
 	total: number;
 }
 
+interface AuthToken {
+	token_type: string;
+	access_token: string;
+}
+
+interface RequestQueryBase {
+	offset?: number;
+	limit?: number;
+}
+
+interface GetMangaList extends RequestQueryBase {
+	ids: Array<string>;
+	includes?: Array<string>;
+	contentRating?: Array<string>;
+}
+
+interface GetCoverList extends RequestQueryBase {
+	mangaIds: Array<string>;
+	order?: {
+		volume?: 'asc' | 'desc';
+	};
+}
+
 export {
 	Status,
 	PublicationDemographic,
@@ -113,4 +136,7 @@ export {
 	MangaListResponse,
 	CoverType,
 	CoverListResponse,
+	AuthToken,
+	GetMangaList,
+	GetCoverList,
 };

@@ -39,13 +39,63 @@ function createSVG({
 function setStyle(element, styles) {
   for (const style in styles) element.style.setProperty(style, styles[style]);
 }
+function createUrl$1(base, path = '/', query = {}) {
+  const url = new URL(base);
+  url.pathname = path;
+  for (const key in query) {
+    const value = query[key];
+    if (Array.isArray(value)) {
+      for (const item of value) url.searchParams.append(key, item);
+    } else url.searchParams.set(key, value.toString());
+  }
+  return url;
+}
 
-const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
+const baseUrl = 'https://api.mangadex.org';
+const pageInfo = {
+  titleId: getMatch(window.location.pathname, /\/title\/(?:edit\/)?([-0-9a-f]{20,})/, 1),
+  isDraft: /draft=true/.test(window.location.search)
+};
+const createUrl = (path, query) => createUrl$1(baseUrl, path, query);
+function getMangaList({
+  ids,
+  includes = [],
+  contentRating = [],
+  offset = 0,
+  limit = 100
+}) {
+  return new Promise((resolve, reject) => {
+    fetch(createUrl('/manga', {
+      offset: offset,
+      limit: limit,
+      'includes[]': includes,
+      'contentRating[]': contentRating,
+      'ids[]': ids
+    })).then(rsp => resolve(rsp.json())).catch(reject);
+  });
+}
+function getCoverList({
+  mangaIds,
+  order = {},
+  offset = 0,
+  limit = 100
+}) {
+  return new Promise((resolve, reject) => {
+    const query = {
+      offset: offset,
+      limit: limit,
+      'manga[]': mangaIds
+    };
+    if (order !== null && order !== void 0 && order.volume) query['order[volume]'] = order.volume;
+    fetch(createUrl('/cover', query)).then(rsp => resolve(rsp.json())).catch(reject);
+  });
+}
+
 const newBookmarklet = (code, settings = {}) => {
   newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
     const noticePart = 'You can execute this bookmarklet only on ';
-    if (settings.titlePage && !titleId && !isCreatePage) return alert(noticePart + 'a title page!');
+    if (settings.titlePage && !pageInfo.titleId && !isCreatePage) return alert(noticePart + 'a title page!');
     if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert(noticePart + 'an edit page!');
     code();
   });
@@ -274,7 +324,7 @@ newBookmarklet(() => {
         display: 'none',
         'align-items': 'center',
         'justify-content': 'center',
-        'background-color': 'var(--md-accent)',
+        'background-color': 'rgb(var(--md-accent))',
         'z-index': '4'
       });
       descriptionElement.addEventListener('click', e => showDescriptions(e, false));
@@ -312,7 +362,7 @@ newBookmarklet(() => {
       gap: '0.2rem'
     });
     if (element instanceof HTMLImageElement) {
-      var _element$parentElemen2;
+      var _element$parentElemen;
       setStyle(sizeElement, {
         padding: '0.5rem 0.5rem 1rem',
         color: '#fff',
@@ -322,31 +372,31 @@ newBookmarklet(() => {
         'border-top-right-radius': '0.25rem',
         'border-top-left-radius': '0.25rem'
       });
-      setStyle(iconsElement, {
-        position: 'absolute',
-        top: '0',
-        right: '0',
-        padding: '0.45rem 0.5rem',
-        color: '#fff'
-      });
+      (_element$parentElemen = element.parentElement) === null || _element$parentElemen === void 0 || _element$parentElemen.appendChild(sizeElement);
       if (cover.attributes.description) {
-        var _element$parentElemen;
-        descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
+        var _element$parentElemen2;
+        setStyle(iconsElement, {
+          position: 'absolute',
+          top: '0',
+          right: '0',
+          padding: '0.45rem 0.5rem',
+          color: '#fff'
+        });
         setStyle(descriptionShowElementSvg, {
           width: '1.5rem',
           height: '1.5rem'
         });
+        descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
         setStyle(descriptionElement, {
           'border-radius': '0.25rem'
         });
-        (_element$parentElemen = element.parentElement) === null || _element$parentElemen === void 0 ? void 0 : _element$parentElemen.append(descriptionElement);
         iconsElement.appendChild(descriptionShowElement);
+        (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 || _element$parentElemen2.append(iconsElement, descriptionElement);
       }
-      (_element$parentElemen2 = element.parentElement) === null || _element$parentElemen2 === void 0 ? void 0 : _element$parentElemen2.append(sizeElement, iconsElement);
     } else {
       setStyle(sizeElement, {
         padding: '0 0.2rem',
-        'background-color': 'var(--md-accent)',
+        'background-color': 'rgb(var(--md-accent))',
         'border-bottom-left-radius': '4px',
         'border-bottom-right-radius': '4px'
       });
@@ -367,8 +417,8 @@ newBookmarklet(() => {
         });
         element.appendChild(descriptionElement);
         iconsElement.appendChild(descriptionShowElement);
+        sizeElement.appendChild(iconsElement);
       }
-      sizeElement.appendChild(iconsElement);
       element.appendChild(sizeElement);
     }
   }
@@ -409,11 +459,21 @@ newBookmarklet(() => {
   function getCoverData(ids, endpoint, offset = 0) {
     return new Promise((resolve, reject) => {
       const isCoverEndpoint = endpoint === 'cover';
-      const mangaIdsQuery = ids.map(id => isCoverEndpoint ? `manga[]=${id}` : `ids[]=${id}`).join('&');
-      let url = `https://api.mangadex.org/${endpoint}?${mangaIdsQuery}&includes[]=cover_art&limit=${requestLimit}&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic&offset=${offset}`;
-      if (isCoverEndpoint) url = `https://api.mangadex.org/${endpoint}?order[volume]=asc&${mangaIdsQuery}&limit=${requestLimit}&offset=${offset}`;
-      if (offset > maxRequestOffset) return reject(new Error(`Offset is bigger than ${maxRequestOffset}:\n ${url}`));
-      fetch(url).then(rsp => resolve(rsp.json())).catch(reject);
+      if (offset > maxRequestOffset) return reject(new Error(`Offset is bigger than ${maxRequestOffset}!`));
+      if (isCoverEndpoint) getCoverList({
+        mangaIds: ids,
+        order: {
+          volume: 'asc'
+        },
+        offset: offset,
+        limit: requestLimit
+      }).then(resolve).catch(reject);else getMangaList({
+        ids: ids,
+        includes: ['cover_art'],
+        contentRating: ['safe', 'suggestive', 'erotica', 'pornographic'],
+        offset: offset,
+        limit: requestLimit
+      }).then(resolve).catch(reject);
     });
   }
 });})();

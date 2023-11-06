@@ -3,7 +3,7 @@ import * as Api from './types/api';
 
 mangadex.newBookmarklet(
 	() => {
-		mangadex.fetchTitleInfo().then((titleInfo) => {
+		mangadex.api.getManga().then((titleInfo) => {
 			const websites: Api.LocalisedStringObject = {
 				al: 'https://anilist.co/manga/',
 				ap: 'https://www.anime-planet.com/manga/',

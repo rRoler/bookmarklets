@@ -1,10 +1,5 @@
 import * as BM from '../shared';
-import * as Api from './types/api';
-
-const titleId =
-	BM.getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) ||
-	BM.getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
-const isDraft = /draft=true/.test(window.location.search);
+import * as api from './api';
 
 const newBookmarklet = (
 	code: VoidFunction,
@@ -19,7 +14,7 @@ const newBookmarklet = (
 			settings.createPage && /\/create\//.test(window.location.pathname);
 
 		const noticePart = 'You can execute this bookmarklet only on ';
-		if (settings.titlePage && !titleId && !isCreatePage)
+		if (settings.titlePage && !api.pageInfo.titleId && !isCreatePage)
 			return alert(noticePart + 'a title page!');
 		if (
 			settings.editPage &&
@@ -31,33 +26,4 @@ const newBookmarklet = (
 	});
 };
 
-const getAuthToken = () =>
-	BM.parseStorage(
-		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable',
-	) ||
-	BM.parseStorage(
-		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary',
-	);
-
-function fetchTitleInfo(): Promise<Api.MangaResponse> {
-	const authToken = getAuthToken();
-	return new Promise((resolve, reject) =>
-		fetch(
-			`https://api.mangadex.org/manga${isDraft ? '/draft/' : '/'}${titleId}`,
-			{
-				headers: {
-					Authorization: isDraft
-						? `${authToken.token_type} ${authToken.access_token}`
-						: '',
-				},
-			},
-		)
-			.then((rsp) => resolve(rsp.json()))
-			.catch((e) => {
-				alert('Failed to fetch title info!');
-				reject(e);
-			}),
-	);
-}
-
-export { newBookmarklet, fetchTitleInfo };
+export { newBookmarklet, api };

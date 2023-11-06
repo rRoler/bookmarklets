@@ -29,12 +29,16 @@ function waitForElement(querySelectors, noElement = false) {
   });
 }
 
-const titleId = getMatch(window.location.pathname, /\/title\/+([-0-9a-f]{20,})/, 1) || getMatch(window.location.pathname, /\/title\/edit\/+([-0-9a-f]{20,})/, 1);
+const pageInfo = {
+  titleId: getMatch(window.location.pathname, /\/title\/(?:edit\/)?([-0-9a-f]{20,})/, 1),
+  isDraft: /draft=true/.test(window.location.search)
+};
+
 const newBookmarklet = (code, settings = {}) => {
   newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
     const noticePart = 'You can execute this bookmarklet only on ';
-    if (settings.titlePage && !titleId && !isCreatePage) return alert(noticePart + 'a title page!');
+    if (settings.titlePage && !pageInfo.titleId && !isCreatePage) return alert(noticePart + 'a title page!');
     if (settings.editPage && !/\/edit\//.test(window.location.pathname) && !isCreatePage) return alert(noticePart + 'an edit page!');
     code();
   });
@@ -50,7 +54,7 @@ newBookmarklet(async () => {
       var _element$parentElemen;
       const coverDescription = parseDescription(element, defaultDescription);
       const edit = (_element$parentElemen = element.parentElement) === null || _element$parentElemen === void 0 ? void 0 : _element$parentElemen.querySelector('.volume-edit');
-      edit === null || edit === void 0 ? void 0 : edit.dispatchEvent(new MouseEvent('click'));
+      edit === null || edit === void 0 || edit.dispatchEvent(new MouseEvent('click'));
       const changed = await setDescription(coverDescription);
       if (changed) changedDescriptions.push(element);
     }
@@ -78,14 +82,14 @@ newBookmarklet(async () => {
   }
   function setDescription(description) {
     return new Promise(resolve => {
-      const selectors = 'textarea[placeholder="Cover Information"]';
+      const selectors = '.md-modal__box .md-textarea__input';
       waitForElement(selectors).then(element => {
         var _element$parentElemen4;
         let changed = true;
         const save = element === null || element === void 0 || (_element$parentElemen4 = element.parentElement) === null || _element$parentElemen4 === void 0 || (_element$parentElemen4 = _element$parentElemen4.parentElement) === null || _element$parentElemen4 === void 0 || (_element$parentElemen4 = _element$parentElemen4.parentElement) === null || _element$parentElemen4 === void 0 || (_element$parentElemen4 = _element$parentElemen4.parentElement) === null || _element$parentElemen4 === void 0 ? void 0 : _element$parentElemen4.querySelector('button.primary');
         if (!element.value) element.value = description;else changed = false;
-        element === null || element === void 0 ? void 0 : element.dispatchEvent(new InputEvent('input'));
-        save === null || save === void 0 ? void 0 : save.dispatchEvent(new MouseEvent('click'));
+        element === null || element === void 0 || element.dispatchEvent(new InputEvent('input'));
+        save === null || save === void 0 || save.dispatchEvent(new MouseEvent('click'));
         waitForElement(selectors, true).then(() => resolve(changed));
       });
     });
