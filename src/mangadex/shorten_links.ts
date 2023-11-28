@@ -1,5 +1,5 @@
-import * as mangadex from './shared';
-import * as BM from '../shared';
+import * as mangadex from './mangadex';
+import * as utils from '../utils';
 
 mangadex.newBookmarklet(
 	() => {
@@ -38,8 +38,8 @@ mangadex.newBookmarklet(
 			];
 			for (const regexPattern of regexes) {
 				const regex = new RegExp(`(?:https?://${regexPattern}.*)$`);
-				const websiteUrl = BM.getMatch(link, regex, 1);
-				const id = BM.getMatch(link, regex, 2);
+				const websiteUrl = utils.getMatch(link, regex, 1);
+				const id = utils.getMatch(link, regex, 2);
 				if (websiteUrl && id) {
 					shortLink = `https://${websiteUrl}${id}`;
 					break;

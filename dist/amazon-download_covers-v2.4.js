@@ -1,13 +1,14 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/amazon-download_covers.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/amazon-download_covers-v2.4.dependencies.txt
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
-function getMatch(string, regex, index = 0) {
+function getMatch(string, regex) {
+  let index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
@@ -460,6 +461,10 @@ var Zip = /*#__PURE__*/ (function () {
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
 var FileSaver_min = {exports: {}};
 
 (function (module, exports) {
@@ -469,40 +474,26 @@ var FileSaver_min = {exports: {}};
 } (FileSaver_min));
 
 var FileSaver_minExports = FileSaver_min.exports;
+var fileSaver = /*@__PURE__*/getDefaultExportFromCjs(FileSaver_minExports);
 
-function _defineProperty(obj, key, value) {
-  key = _toPropertyKey(key);
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
+let componentColors = {
+  text: '#000',
+  primary: '#b5e853',
+  background: '#fff',
+  accent: '#3c3c3c'
+};
+class BaseComponent {
+  constructor() {
+    this.element = document.createElement('div');
   }
-  return obj;
-}
-function _toPrimitive(input, hint) {
-  if (typeof input !== "object" || input === null) return input;
-  var prim = input[Symbol.toPrimitive];
-  if (prim !== undefined) {
-    var res = prim.call(input, hint || "default");
-    if (typeof res !== "object") return res;
-    throw new TypeError("@@toPrimitive must return a primitive value.");
-  }
-  return (hint === "string" ? String : Number)(input);
-}
-function _toPropertyKey(arg) {
-  var key = _toPrimitive(arg, "string");
-  return typeof key === "symbol" ? key : String(key);
+  add = () => document.body.appendChild(this.element);
+  remove = () => this.element.remove();
 }
 
-class SimpleProgressBar {
-  constructor(initialPercentage = 0) {
-    _defineProperty(this, "add", () => document.body.appendChild(this.element));
-    _defineProperty(this, "remove", () => this.element.remove());
+class SimpleProgressBar extends BaseComponent {
+  constructor() {
+    let initialPercentage = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    super();
     const background = document.createElement('div');
     setStyle(background, {
       'z-index': '1000',
@@ -511,18 +502,18 @@ class SimpleProgressBar {
       left: '0',
       width: '100%',
       height: '24px',
-      'background-color': '#3c3c3c',
+      'background-color': componentColors.accent,
       cursor: 'pointer'
     });
     const progress = document.createElement('div');
     setStyle(progress, {
       height: '100%',
-      'background-color': '#b5e853',
+      'background-color': componentColors.primary,
       transition: 'width 200ms'
     });
     this.bar = progress;
     this.update(initialPercentage);
-    background.appendChild(progress);
+    background.append(progress);
     background.addEventListener('click', this.remove);
     this.element = background;
   }
@@ -539,7 +530,7 @@ newBookmarklet(() => {
   const zipAmount = 4;
   const books = document.querySelectorAll('.itemImageLink');
   const getAsin = url => getMatch(url, /(?:[/dp]|$)([A-Z0-9]{10})/, 1);
-  const getCoverUrl = asin => `https://${window.location.hostname}/images/P/${asin}.01.MAIN._SCRM_.jpg`;
+  const getCoverUrl = asin => `/images/P/${asin}.01.MAIN._SCRM_.jpg`;
   const getCover = coverUrl => {
     const fetchCover = url => new Promise((resolve, reject) => fetch(url).then(rsp => rsp.blob()).then(blob => {
       if (blob.size < 1024) throw new Error('cover is smaller than 1 KB');
@@ -575,7 +566,7 @@ newBookmarklet(() => {
   function saveCovers(asins) {
     asins.forEach(asin => {
       if (!asin) return;
-      getCover(getCoverUrl(asin)).then(blob => FileSaver_minExports.saveAs(blob, `${asin}.jpg`)).catch(reportError);
+      getCover(getCoverUrl(asin)).then(blob => fileSaver.saveAs(blob, `${asin}.jpg`)).catch(reportError);
     });
   }
   function zipCovers(asins) {
@@ -590,7 +581,7 @@ newBookmarklet(() => {
         progressBar.remove();
       } else chunks.push(chunk);
       if (final) {
-        FileSaver_minExports.saveAs(new Blob(chunks, {
+        fileSaver.saveAs(new Blob(chunks, {
           type: 'application/zip'
         }), 'covers.zip');
         progressBar.remove();

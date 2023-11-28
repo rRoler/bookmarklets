@@ -1,13 +1,14 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-search_missing_links.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-search_missing_links-v2.1.dependencies.txt
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
-function getMatch(string, regex, index = 0) {
+function getMatch(string, regex) {
+  let index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
@@ -15,7 +16,9 @@ function parseStorage(key) {
   const value = localStorage.getItem(key);
   if (value) return JSON.parse(value);
 }
-function createUrl$1(base, path = '/', query = {}) {
+function createUrl$1(base) {
+  let path = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '/';
+  let query = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   const url = new URL(base);
   url.pathname = path;
   for (const key in query) {
@@ -34,7 +37,9 @@ const pageInfo = {
 };
 const getAuthToken = () => parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable') || parseStorage('oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary');
 const createUrl = (path, query) => createUrl$1(baseUrl, path, query);
-function getManga(id = pageInfo.titleId, isDraft = pageInfo.isDraft) {
+function getManga() {
+  let id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : pageInfo.titleId;
+  let isDraft = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : pageInfo.isDraft;
   const authToken = getAuthToken();
   return new Promise((resolve, reject) => fetch(createUrl(`/manga${isDraft ? '/draft/' : '/'}${id}`), {
     headers: {
@@ -43,7 +48,8 @@ function getManga(id = pageInfo.titleId, isDraft = pageInfo.isDraft) {
   }).then(rsp => resolve(rsp.json())).catch(reject));
 }
 
-const newBookmarklet = (code, settings = {}) => {
+const newBookmarklet = function (code) {
+  let settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
     const noticePart = 'You can execute this bookmarklet only on ';

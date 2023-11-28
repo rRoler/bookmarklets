@@ -1,16 +1,16 @@
-import * as BM from '../shared';
-import * as amazon from './shared';
+import * as utils from '../utils';
+import * as amazon from './amazon';
 import * as fflate from 'fflate';
-import * as fileSaver from 'file-saver';
+import fileSaver from 'file-saver';
 import SimpleProgressBar from '../components/progress_bars';
 
 amazon.newBookmarklet(() => {
 	const zipAmount = 4;
 	const books = document.querySelectorAll('.itemImageLink');
 	const getAsin = (url: string): string | undefined =>
-		BM.getMatch(url, /(?:[/dp]|$)([A-Z0-9]{10})/, 1);
+		utils.getMatch(url, /(?:[/dp]|$)([A-Z0-9]{10})/, 1);
 	const getCoverUrl = (asin: string): string =>
-		`https://${window.location.hostname}/images/P/${asin}.01.MAIN._SCRM_.jpg`;
+		`/images/P/${asin}.01.MAIN._SCRM_.jpg`;
 	const getCover = (coverUrl: string): Promise<Blob> => {
 		const fetchCover = (url: string): Promise<Blob> =>
 			new Promise((resolve, reject) =>
@@ -34,8 +34,8 @@ amazon.newBookmarklet(() => {
 					if (fallbackImage) {
 						const regex =
 							/(https?:\/\/.*\/images\/[A-Z]\/[A-Za-z0-9+-]+).*(\.[a-z]+)/;
-						const imageSource = BM.getMatch(fallbackImage.src, regex, 1);
-						const imageExtension = BM.getMatch(fallbackImage.src, regex, 2);
+						const imageSource = utils.getMatch(fallbackImage.src, regex, 1);
+						const imageExtension = utils.getMatch(fallbackImage.src, regex, 2);
 						if (imageSource && imageExtension)
 							return fetchCover(imageSource + imageExtension)
 								.then(resolve)

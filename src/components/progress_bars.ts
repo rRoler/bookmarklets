@@ -1,30 +1,31 @@
-import * as BM from '../shared';
+import BaseComponent, { componentColors } from './base_component';
+import * as utils from '../utils';
 
-class SimpleProgressBar {
-	element: HTMLDivElement;
+class SimpleProgressBar extends BaseComponent {
 	bar: HTMLDivElement;
 
 	constructor(initialPercentage = 0) {
+		super();
 		const background = document.createElement('div');
-		BM.setStyle(background, {
+		utils.setStyle(background, {
 			'z-index': '1000',
 			position: 'fixed',
 			bottom: '0',
 			left: '0',
 			width: '100%',
 			height: '24px',
-			'background-color': '#3c3c3c',
+			'background-color': componentColors.accent,
 			cursor: 'pointer',
 		});
 		const progress = document.createElement('div');
-		BM.setStyle(progress, {
+		utils.setStyle(progress, {
 			height: '100%',
-			'background-color': '#b5e853',
+			'background-color': componentColors.primary,
 			transition: 'width 200ms',
 		});
 		this.bar = progress;
 		this.update(initialPercentage);
-		background.appendChild(progress);
+		background.append(progress);
 		background.addEventListener('click', this.remove);
 		this.element = background;
 	}
@@ -39,14 +40,10 @@ class SimpleProgressBar {
 			currentPercentageRounded !== percentageRounded &&
 			percentageRounded >= 0
 		)
-			BM.setStyle(this.bar, {
+			utils.setStyle(this.bar, {
 				width: `${percentageRounded}%`,
 			});
 	}
-
-	add = (): HTMLDivElement => document.body.appendChild(this.element);
-
-	remove = (): void => this.element.remove();
 }
 
 export default SimpleProgressBar;

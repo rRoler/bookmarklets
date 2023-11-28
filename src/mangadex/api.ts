@@ -1,9 +1,9 @@
-import * as BM from '../shared';
+import * as utils from '../utils';
 import * as Api from './types/api';
 
 const baseUrl = 'https://api.mangadex.org';
 const pageInfo = {
-	titleId: BM.getMatch(
+	titleId: utils.getMatch(
 		window.location.pathname,
 		/\/title\/(?:edit\/)?([-0-9a-f]{20,})/,
 		1,
@@ -12,17 +12,17 @@ const pageInfo = {
 };
 
 const getAuthToken: () => Api.AuthToken = () =>
-	BM.parseStorage(
+	utils.parseStorage(
 		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-stable',
 	) ||
-	BM.parseStorage(
+	utils.parseStorage(
 		'oidc.user:https://auth.mangadex.org/realms/mangadex:mangadex-frontend-canary',
 	);
 
 const createUrl = (
 	path: string,
 	query?: Record<string, string | number | Array<string>>,
-) => BM.createUrl(baseUrl, path, query);
+) => utils.createUrl(baseUrl, path, query);
 
 function getManga(
 	id = pageInfo.titleId,
@@ -68,6 +68,7 @@ function getMangaList({
 function getCoverList({
 	mangaIds,
 	order = {},
+	includes = [],
 	offset = 0,
 	limit = 100,
 }: Api.GetCoverList): Promise<Api.CoverListResponse> {
@@ -76,6 +77,7 @@ function getCoverList({
 			offset: offset,
 			limit: limit,
 			'manga[]': mangaIds,
+			'includes[]': includes,
 		};
 		if (order?.volume) query['order[volume]'] = order.volume;
 

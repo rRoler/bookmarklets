@@ -54,34 +54,40 @@ function parseStorage(key: string) {
 	if (value) return JSON.parse(value);
 }
 
-function createSVG({
-	fill = 'none',
-	viewBox = '0 0 24 24',
-	stroke = 'currentColor',
-	strokeLinecap = 'round',
-	strokeLinejoin = 'round',
-	d = '',
+function createSVG(options: {
+	svg: { attributes?: Record<string, string>; styles?: Record<string, string> };
+	paths: Array<{
+		attributes?: Record<string, string>;
+		styles?: Record<string, string>;
+	}>;
 }) {
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-	svg.setAttribute('fill', fill);
-	svg.setAttribute('viewBox', viewBox);
-	svg.setAttribute('stroke', stroke);
-	const svgPath = document.createElementNS(
-		'http://www.w3.org/2000/svg',
-		'path',
-	);
-	svgPath.setAttribute('stroke-linecap', strokeLinecap);
-	svgPath.setAttribute('stroke-linejoin', strokeLinejoin);
-	svgPath.setAttribute('d', d);
-	svg.appendChild(svgPath);
+	if (options.svg.attributes) setAttribute(svg, options.svg.attributes);
+	if (options.svg.styles) setStyle(svg, options.svg.styles);
+
+	for (const pathOptions of options.paths) {
+		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+		if (pathOptions.attributes) setAttribute(path, pathOptions.attributes);
+		if (pathOptions.styles) setStyle(path, pathOptions.styles);
+		svg.append(path);
+	}
+
 	return svg;
 }
 
 function setStyle(
-	element: HTMLElement | SVGSVGElement,
+	element: HTMLElement | SVGElement,
 	styles: Record<string, string>,
 ) {
 	for (const style in styles) element.style.setProperty(style, styles[style]);
+}
+
+function setAttribute(
+	element: HTMLElement | SVGElement,
+	attributes: Record<string, string>,
+) {
+	for (const attribute in attributes)
+		element.setAttribute(attribute, attributes[attribute]);
 }
 
 function createUrl(
@@ -108,5 +114,6 @@ export {
 	parseStorage,
 	createSVG,
 	setStyle,
+	setAttribute,
 	createUrl,
 };

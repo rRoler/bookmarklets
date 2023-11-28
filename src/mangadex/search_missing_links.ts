@@ -1,4 +1,4 @@
-import * as mangadex from './shared';
+import * as mangadex from './mangadex';
 import * as Api from './types/api';
 
 mangadex.newBookmarklet(

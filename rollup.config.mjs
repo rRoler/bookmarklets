@@ -16,7 +16,8 @@ function rollup(bookmarkletsConfig, readme = false) {
 	const config = [];
 	bookmarkletsConfig.bookmarklets.forEach((bookmarkletConfig, index) => {
 		const src_file = `src/${bookmarkletConfig.path}.ts`;
-		const dep_file = `${bookmarkletsConfig.dist_folder}/${bookmarkletConfig.id}.dependencies.txt`;
+		const dest_filename = `${bookmarkletConfig.id}-v${bookmarkletConfig.version}`;
+		const dep_file = `${bookmarkletsConfig.dist_folder}/${dest_filename}.dependencies.txt`;
 		fs.ensureFile(src_file);
 
 		const babelConfig = {
@@ -24,12 +25,22 @@ function rollup(bookmarkletsConfig, readme = false) {
 			babelHelpers: 'bundled',
 			include: ['src/**/*'],
 		};
+		const licenseConfig = {
+			sourcemap: true,
+			cwd: process.cwd(),
+			banner: {
+				commentStyle: 'ignored',
+				content:
+					`Licensed under MIT: ${repositoryUrl}/raw/main/LICENSE\n` +
+					`Third party licenses: ${repositoryUrl}/raw/main/${dep_file}`,
+			},
+		};
 		const configs = [
 			{
 				input: src_file,
 				output: [
 					{
-						file: `${bookmarkletsConfig.dist_folder}/${bookmarkletConfig.id}.js`,
+						file: `${bookmarkletsConfig.dist_folder}/${dest_filename}.js`,
 						format: 'es',
 					},
 				],
@@ -45,16 +56,14 @@ function rollup(bookmarkletsConfig, readme = false) {
 						urlEncode: false,
 					}),
 					license({
-						sourcemap: true,
-						cwd: process.cwd(),
-						banner: {
-							commentStyle: 'ignored',
-							content:
-								`Licensed under MIT: ${repositoryUrl}/raw/main/LICENSE\n` +
-								`Third party licenses: ${repositoryUrl}/raw/main/${dep_file}`,
-						},
+						...licenseConfig,
 						thirdParty: {
 							includePrivate: true,
+							allow: {
+								test: '(MIT OR Apache-2.0)',
+								failOnUnlicensed: true,
+								failOnViolation: true,
+							},
 							output: {
 								file: dep_file,
 								encoding: 'utf-8',
@@ -67,7 +76,7 @@ function rollup(bookmarkletsConfig, readme = false) {
 				input: src_file,
 				output: [
 					{
-						file: `${bookmarkletsConfig.dist_folder}/${bookmarkletConfig.id}.min.js`,
+						file: `${bookmarkletsConfig.dist_folder}/${dest_filename}.min.js`,
 						format: 'es',
 					},
 				],
@@ -78,12 +87,11 @@ function rollup(bookmarkletsConfig, readme = false) {
 					nodePolyfills(),
 					babel(babelConfig),
 					terser({
+						module: true,
 						compress: {
-							ecma: 2015,
 							negate_iife: false,
 						},
 						format: {
-							ecma: 2015,
 							comments: false,
 						},
 					}),
@@ -92,6 +100,7 @@ function rollup(bookmarkletsConfig, readme = false) {
 						prefix: true,
 						urlEncode: false,
 					}),
+					license(licenseConfig),
 					generateReadme({
 						bookmarkletId: bookmarkletConfig.id,
 						config: bookmarkletsConfig,

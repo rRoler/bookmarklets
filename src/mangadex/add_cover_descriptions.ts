@@ -1,5 +1,5 @@
-import * as mangadex from './shared';
-import * as BM from '../shared';
+import * as mangadex from './mangadex';
+import * as utils from '../utils';
 
 mangadex.newBookmarklet(
 	async () => {
@@ -63,7 +63,7 @@ mangadex.newBookmarklet(
 		function setDescription(description: string): Promise<boolean> {
 			return new Promise((resolve) => {
 				const selectors = '.md-modal__box .md-textarea__input';
-				BM.waitForElement(selectors).then((element) => {
+				utils.waitForElement(selectors).then((element) => {
 					let changed = true;
 					const save =
 						element?.parentElement?.parentElement?.parentElement?.parentElement?.querySelector(
@@ -74,7 +74,7 @@ mangadex.newBookmarklet(
 					else changed = false;
 					element?.dispatchEvent(new InputEvent('input'));
 					save?.dispatchEvent(new MouseEvent('click'));
-					BM.waitForElement(selectors, true).then(() => resolve(changed));
+					utils.waitForElement(selectors, true).then(() => resolve(changed));
 				});
 			});
 		}

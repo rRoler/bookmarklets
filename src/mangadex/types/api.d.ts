@@ -34,6 +34,17 @@ interface Tag {
 
 type State = 'draft' | 'submitted' | 'published' | 'rejected';
 
+interface UserType {
+	id: string;
+	type: 'user';
+	attributes?: {
+		username: string;
+		roles: Array<string>;
+		version: number;
+	};
+	relationships?: Array<Relationship>;
+}
+
 interface MangaType {
 	id: string;
 	type: 'manga';
@@ -118,6 +129,7 @@ interface GetMangaList extends RequestQueryBase {
 
 interface GetCoverList extends RequestQueryBase {
 	mangaIds: Array<string>;
+	includes?: Array<string>;
 	order?: {
 		volume?: 'asc' | 'desc';
 	};
@@ -131,6 +143,7 @@ export {
 	Relationship,
 	Tag,
 	State,
+	UserType,
 	MangaType,
 	MangaResponse,
 	MangaListResponse,

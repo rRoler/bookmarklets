@@ -1,6 +1,6 @@
-import * as bookwalker from './shared';
-import * as BM from '../shared';
-import * as fileSaver from 'file-saver';
+import * as bookwalker from './bookwalker';
+import * as utils from '../utils';
+import fileSaver from 'file-saver';
 
 bookwalker.newBookmarklet(() => {
 	const confirmAmount = 4;
@@ -12,8 +12,11 @@ bookwalker.newBookmarklet(() => {
 		covers = document.querySelectorAll('meta[property="og:image"]');
 	const getId = (url: string): number | undefined => {
 		const id =
-			BM.getMatch(url, /:\/\/[^/]*\/([0-9]+)\/[0-9a-zA-Z_]+(\.[^/.]*)$/, 1) ||
-			BM.getMatch(url, /:\/\/[^/]*\/(\D+)([0-9]+)(\.[^/.]*)$/, 2);
+			utils.getMatch(
+				url,
+				/:\/\/[^/]*\/([0-9]+)\/[0-9a-zA-Z_]+(\.[^/.]*)$/,
+				1,
+			) || utils.getMatch(url, /:\/\/[^/]*\/(\D+)([0-9]+)(\.[^/.]*)$/, 2);
 		if (!id) return undefined;
 		if (/:\/\/c.bookwalker.jp\/thumbnailImage_[0-9]+\.[^/.]*$/.test(url))
 			return parseInt(id) - 1;

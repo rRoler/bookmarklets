@@ -1,13 +1,14 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-del_covers_by_lang.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-del_covers_by_lang-v1.8.dependencies.txt
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
-function getMatch(string, regex, index = 0) {
+function getMatch(string, regex) {
+  let index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
@@ -17,7 +18,8 @@ const pageInfo = {
   isDraft: /draft=true/.test(window.location.search)
 };
 
-const newBookmarklet = (code, settings = {}) => {
+const newBookmarklet = function (code) {
+  let settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
     const noticePart = 'You can execute this bookmarklet only on ';

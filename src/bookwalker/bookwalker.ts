@@ -1,7 +1,7 @@
-import * as BM from '../shared';
+import * as utils from '../utils';
 
 const newBookmarklet = (code: VoidFunction): void => {
-	BM.newBookmarklet('www.amazon.*', code);
+	utils.newBookmarklet('bookwalker.jp', code);
 };
 
 export { newBookmarklet };

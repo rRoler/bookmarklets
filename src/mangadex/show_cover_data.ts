@@ -1,9 +1,12 @@
-import * as mangadex from './shared';
-import * as BM from '../shared';
+import * as mangadex from './mangadex';
+import * as utils from '../utils';
+import * as icons from '../components/icons';
 import * as Api from './types/api';
 import SimpleProgressBar from '../components/progress_bars';
 
 mangadex.newBookmarklet(() => {
+	mangadex.useComponents();
+
 	const maxCoverRetry = 4;
 	const requestLimit = 100;
 	const maxRequestOffset = 1000;
@@ -24,16 +27,17 @@ mangadex.newBookmarklet(() => {
 			!/\/covers\/+[-0-9a-f]{20,}\/+[-0-9a-f]{20,}[^/]+(?:[?#].*)?$/.test(
 				imageSource,
 			) ||
-			element.classList.contains('banner-image')
+			element.classList.contains('banner-image') ||
+			element.parentElement?.classList.contains('banner-bg')
 		)
 			return;
-		const mangaId = BM.getMatch(imageSource, /[-0-9a-f]{20,}/);
+		const mangaId = utils.getMatch(imageSource, /[-0-9a-f]{20,}/);
 		const coverFileName =
-			BM.getMatch(
+			utils.getMatch(
 				imageSource,
 				/([-0-9a-f]{20,}\.[^/.]*)\.[0-9]+\.[^/.?#]*([?#].*)?$/,
 				1,
-			) || BM.getMatch(imageSource, /[-0-9a-f]{20,}\.[^/.]*?$/);
+			) || utils.getMatch(imageSource, /[-0-9a-f]{20,}\.[^/.]*?$/);
 		if (!mangaId || !coverFileName) return;
 		const addCoverFileName = (fileNames: Map<string, Set<string>>): void => {
 			fileNames.has(mangaId)
@@ -61,7 +65,7 @@ mangadex.newBookmarklet(() => {
 
 	coverFileNames.forEach((fileNames, mangaId) => {
 		const skippedCoversSize = skippedCoverFileNames.get(mangaId)?.size || 0;
-		if (fileNames.size + skippedCoversSize > 1)
+		if (fileNames.size + skippedCoversSize > 1 || mangadex.api.pageInfo.titleId)
 			mangaIdsForQuery.cover.push(mangaId);
 		else mangaIdsForQuery.manga.push(mangaId);
 	});
@@ -72,7 +76,7 @@ mangadex.newBookmarklet(() => {
 			let failedCoverData = 0;
 
 			const coverImagesContainer = document.createElement('div');
-			BM.setStyle(coverImagesContainer, {
+			utils.setStyle(coverImagesContainer, {
 				width: 'fit-content',
 				height: 'fit-content',
 				opacity: '0',
@@ -81,7 +85,7 @@ mangadex.newBookmarklet(() => {
 				'z-index': '-10000',
 				'pointer-events': 'none',
 			});
-			document.body.appendChild(coverImagesContainer);
+			document.body.append(coverImagesContainer);
 
 			coverElements.forEach((element) => {
 				const imageSource =
@@ -116,7 +120,7 @@ mangadex.newBookmarklet(() => {
 					'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NgAAIAAAUAAR4f7BQAAAAASUVORK5CYII=';
 				const fullSizeImage = new Image();
 				fullSizeImage.setAttribute('cover-data-bookmarklet', 'executed');
-				coverImagesContainer.appendChild(fullSizeImage);
+				coverImagesContainer.append(fullSizeImage);
 
 				function reportFailed() {
 					if (addedCoverData + failedCoverData >= coverElements.length) {
@@ -202,61 +206,134 @@ mangadex.newBookmarklet(() => {
 		cover: Api.CoverType,
 	) {
 		element.setAttribute('cover-data-cover-id', cover.id);
-		const descriptionShowElement = document.createElement('span');
-		const descriptionElement = document.createElement('span');
-		const descriptionShowElementSvg = BM.createSVG({
-			d: 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z',
-		});
-		descriptionElement.classList.add('cover-data-bookmarklet-description');
-		if (cover.attributes.description) {
-			const showDescriptions = (event: MouseEvent, show = true) => {
-				const showDescription = (element: HTMLSpanElement) =>
-					BM.setStyle(element, { display: show ? 'flex' : 'none' });
 
+		const showAllInformation = (event: MouseEvent, show = true) => {
+			const showInformation = (element: HTMLSpanElement) =>
+				utils.setStyle(element, { display: show ? 'flex' : 'none' });
+
+			event.stopPropagation();
+			event.preventDefault();
+			if (event.shiftKey)
+				document
+					.querySelectorAll('.cover-data-bookmarklet-information')
+					.forEach((element) => showInformation(element as HTMLSpanElement));
+			else showInformation(informationElement);
+		};
+
+		const user = cover.relationships.find(
+			(relationship) =>
+				relationship.type === 'user' &&
+				relationship.id !== 'f8cc4f8a-e596-4618-ab05-ef6572980bbf',
+		) as Api.UserType | undefined;
+
+		const information = {
+			size: `${fullSizeImageWidth}x${fullSizeImageHeight}`,
+			version: `Version ${cover.attributes.version}`,
+			description: cover.attributes.description || undefined,
+			createdAt: `Created at ${new Date(
+				cover.attributes.createdAt,
+			).toLocaleString('en-US', { hour12: false })}`,
+			updatedAt: `Updated at ${new Date(
+				cover.attributes.updatedAt,
+			).toLocaleString('en-US', { hour12: false })}`,
+			user: user?.attributes?.username,
+			id: `Cover ID ${cover.id}`,
+		};
+
+		const informationShowElement = document.createElement('span');
+		utils.setStyle(informationShowElement, {
+			position: 'absolute',
+			top: '0',
+			'z-index': '1',
+		});
+
+		const informationShowElementContent = document.createElement('span');
+		utils.setStyle(informationShowElementContent, {
+			width: 'fit-content',
+			display: 'flex',
+			gap: '0.1rem',
+			'align-items': 'center',
+		});
+		informationShowElementContent.addEventListener('click', showAllInformation);
+		informationShowElement.append(informationShowElementContent);
+
+		const informationShowElementText = document.createElement('span');
+		informationShowElementText.innerText = information.size;
+		utils.setStyle(informationShowElementText, { 'padding-top': '1px' });
+		informationShowElementContent.append(informationShowElementText);
+
+		const informationElement = document.createElement('span');
+		informationElement.classList.add('cover-data-bookmarklet-information');
+		utils.setStyle(informationElement, {
+			display: 'none',
+			position: 'absolute',
+			width: '100%',
+			height: '100%',
+			padding: '0.4rem',
+			gap: '0.2rem',
+			overflow: 'auto',
+			'flex-wrap': 'wrap',
+			'align-content': 'baseline',
+			'background-color': mangadex.mdComponentColors.accent,
+			'z-index': '2',
+		});
+		informationElement.addEventListener('click', (e) =>
+			showAllInformation(e, false),
+		);
+
+		const informationItemElements: Record<string, HTMLSpanElement> = {};
+
+		for (const info in information) {
+			const value = information[info as keyof typeof information] as string;
+			if (!value) {
+				delete information[info as keyof typeof information];
+				continue;
+			}
+			informationItemElements[info] = document.createElement('small');
+			informationItemElements[info].innerText = value;
+			informationItemElements[info].setAttribute('title', value);
+			utils.setStyle(informationItemElements[info], {
+				height: 'fit-content',
+				'max-width': '100%',
+				'flex-grow': '1',
+				'text-align': 'center',
+				'background-color': mangadex.mdComponentColors.accent20,
+				padding: '0.2rem 0.4rem',
+				'border-radius': '0.25rem',
+			});
+			informationElement.append(informationItemElements[info]);
+		}
+
+		informationShowElementContent.setAttribute(
+			'title',
+			Object.values(information).join('\n'),
+		);
+
+		if (informationItemElements.description) {
+			utils.setStyle(informationItemElements.description, {
+				width: '100%',
+				border: `1px solid ${mangadex.mdComponentColors.primary}`,
+			});
+		}
+
+		if (informationItemElements.user) {
+			const roleColor = mangadex.getUserRoleColor(user!.attributes!.roles);
+			utils.setStyle(informationItemElements.user, {
+				width: '100%',
+				color: roleColor,
+				border: `1px solid ${roleColor}`,
+				'background-color': roleColor.replace(')', ',0.1)'),
+			});
+			informationItemElements.user.addEventListener('click', (event) => {
 				event.stopPropagation();
 				event.preventDefault();
-				if (event.shiftKey)
-					document
-						.querySelectorAll('.cover-data-bookmarklet-description')
-						.forEach((element) => showDescription(element as HTMLSpanElement));
-				else showDescription(descriptionElement);
-			};
 
-			descriptionShowElement.setAttribute(
-				'title',
-				cover.attributes.description,
-			);
-			descriptionShowElementSvg.addEventListener('click', showDescriptions);
-			descriptionShowElement.appendChild(descriptionShowElementSvg);
-			const descriptionTextElement = document.createElement('span');
-			descriptionTextElement.innerText = cover.attributes.description;
-			BM.setStyle(descriptionTextElement, {
-				'max-height': '100%',
-				margin: '0.2rem',
-				'text-align': 'center',
+				window.open(`/user/${user!.id}`, '_blank');
 			});
-			BM.setStyle(descriptionElement, {
-				position: 'absolute',
-				width: '100%',
-				height: '100%',
-				'overflow-y': 'auto',
-				display: 'none',
-				'align-items': 'center',
-				'justify-content': 'center',
-				'background-color': 'rgb(var(--md-accent))',
-				'z-index': '4',
-			});
-			descriptionElement.addEventListener('click', (e) =>
-				showDescriptions(e, false),
-			);
-			descriptionElement.appendChild(descriptionTextElement);
 		}
-		const sizeElement = document.createElement('span');
-		const sizeElementText = document.createElement('span');
-		const coverSize = `${fullSizeImageWidth}x${fullSizeImageHeight}`;
-		sizeElementText.innerText = coverSize;
-		sizeElementText.setAttribute('title', coverSize + '\n(click to copy id)');
-		sizeElementText.addEventListener('click', (event) => {
+
+		informationItemElements.id.innerText = 'Copy Cover ID';
+		informationItemElements.id.addEventListener('click', (event) => {
 			const copyId = (ids: string) => {
 				navigator.clipboard
 					.writeText(ids)
@@ -281,20 +358,10 @@ mangadex.newBookmarklet(() => {
 				copyId(coverIds.join(' '));
 			} else copyId(cover.id);
 		});
-		BM.setStyle(sizeElement, {
-			position: 'absolute',
-			top: '0',
-		});
-		sizeElement.appendChild(sizeElementText);
-		const iconsElement = document.createElement('div');
-		BM.setStyle(iconsElement, {
-			display: 'flex',
-			'flex-wrap': 'nowrap',
-			gap: '0.2rem',
-		});
+
 		if (element instanceof HTMLImageElement) {
-			BM.setStyle(sizeElement, {
-				padding: '0.5rem 0.5rem 1rem',
+			utils.setStyle(informationShowElement, {
+				padding: '0.2rem 0.4rem 0.5rem',
 				color: '#fff',
 				left: '0',
 				width: '100%',
@@ -303,51 +370,26 @@ mangadex.newBookmarklet(() => {
 				'border-top-left-radius': '0.25rem',
 			});
 
-			element.parentElement?.appendChild(sizeElement);
+			if (information.description)
+				informationShowElementContent.append(icons.informationCircleOutline());
 
-			if (cover.attributes.description) {
-				BM.setStyle(iconsElement, {
-					position: 'absolute',
-					top: '0',
-					right: '0',
-					padding: '0.45rem 0.5rem',
-					color: '#fff',
-				});
-				BM.setStyle(descriptionShowElementSvg, {
-					width: '1.5rem',
-					height: '1.5rem',
-				});
-				descriptionShowElementSvg.setAttribute('stroke-width', '1.5');
-				BM.setStyle(descriptionElement, { 'border-radius': '0.25rem' });
+			utils.setStyle(informationElement, { 'border-radius': '0.25rem' });
 
-				iconsElement.appendChild(descriptionShowElement);
-				element.parentElement?.append(iconsElement, descriptionElement);
-			}
+			element.parentElement?.append(informationShowElement, informationElement);
 		} else {
-			BM.setStyle(sizeElement, {
+			utils.setStyle(informationShowElement, {
 				padding: '0 0.2rem',
-				'background-color': 'rgb(var(--md-accent))',
+				'background-color': mangadex.mdComponentColors.accent,
 				'border-bottom-left-radius': '4px',
 				'border-bottom-right-radius': '4px',
 			});
-			element.appendChild(sizeElement);
-			BM.setStyle(iconsElement, { 'margin-left': '0.2rem' });
-			BM.setStyle(sizeElement, {
-				display: 'flex',
-				'flex-wrap': 'nowrap',
-				'align-items': 'center',
-			});
-			if (cover.attributes.description) {
-				descriptionShowElementSvg.setAttribute('stroke-width', '2');
-				BM.setStyle(descriptionShowElementSvg, {
-					width: '1.3rem',
-					height: '1.3rem',
-				});
-				element.appendChild(descriptionElement);
-				iconsElement.appendChild(descriptionShowElement);
-				sizeElement.appendChild(iconsElement);
-			}
-			element.appendChild(sizeElement);
+
+			utils.setStyle(informationShowElementText, { 'max-height': '1.5rem' });
+
+			if (information.description)
+				informationShowElementContent.append(icons.informationCircleMini());
+
+			element.append(informationShowElement, informationElement);
 		}
 	}
 
@@ -356,14 +398,20 @@ mangadex.newBookmarklet(() => {
 		async function awaitAllCoverData() {
 			for (const endpoint in mangaIdsForQuery) {
 				const isCoverEndpoint = endpoint === 'cover';
-				const mangaIdsForQuerySplit = BM.splitArray(mangaIdsForQuery[endpoint]);
+				const mangaIdsForQuerySplit = utils.splitArray(
+					mangaIdsForQuery[endpoint],
+				);
 				for (const ids of mangaIdsForQuerySplit) {
-					const rsp = await getCoverData(ids as Array<string>, endpoint);
+					const rsp = await getCoverData(ids as Array<string>, isCoverEndpoint);
 
 					if (isCoverEndpoint) {
 						covers.push(...(rsp.data as Api.CoverListResponse['data']));
 						for (let i = rsp.limit; i < rsp.total; i += rsp.limit) {
-							const rsp = await getCoverData(ids as Array<string>, endpoint, i);
+							const rsp = await getCoverData(
+								ids as Array<string>,
+								isCoverEndpoint,
+								i,
+							);
 							covers.push(...(rsp.data as Api.CoverListResponse['data']));
 						}
 					} else {
@@ -382,18 +430,17 @@ mangadex.newBookmarklet(() => {
 			return covers;
 		}
 
-		return new Promise((resolve, reject) => {
-			awaitAllCoverData().then(resolve).catch(reject);
-		});
+		return new Promise((resolve, reject) =>
+			awaitAllCoverData().then(resolve).catch(reject),
+		);
 	}
 
 	function getCoverData(
 		ids: Array<string>,
-		endpoint: string,
+		isCoverEndpoint: boolean,
 		offset = 0,
 	): Promise<Api.MangaListResponse | Api.CoverListResponse> {
 		return new Promise((resolve, reject) => {
-			const isCoverEndpoint = endpoint === 'cover';
 			if (offset > maxRequestOffset)
 				return reject(new Error(`Offset is bigger than ${maxRequestOffset}!`));
 
@@ -404,6 +451,7 @@ mangadex.newBookmarklet(() => {
 						order: {
 							volume: 'asc',
 						},
+						includes: ['user'],
 						offset: offset,
 						limit: requestLimit,
 					})

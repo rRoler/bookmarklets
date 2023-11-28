@@ -1,4 +1,4 @@
-import * as mangadex from './shared';
+import * as mangadex from './mangadex';
 
 mangadex.newBookmarklet(
 	() => {

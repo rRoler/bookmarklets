@@ -1,13 +1,14 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/bookwalker-download_covers.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/bookwalker-download_covers-v1.6.dependencies.txt
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
-function getMatch(string, regex, index = 0) {
+function getMatch(string, regex) {
+  let index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
@@ -18,6 +19,10 @@ const newBookmarklet = code => {
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
 var FileSaver_min = {exports: {}};
 
 (function (module, exports) {
@@ -27,6 +32,7 @@ var FileSaver_min = {exports: {}};
 } (FileSaver_min));
 
 var FileSaver_minExports = FileSaver_min.exports;
+var fileSaver = /*@__PURE__*/getDefaultExportFromCjs(FileSaver_minExports);
 
 newBookmarklet(() => {
   const confirmAmount = 4;
@@ -47,7 +53,7 @@ newBookmarklet(() => {
   function saveCovers(ids) {
     ids.forEach(id => {
       if (!id) return;
-      FileSaver_minExports.saveAs(getCoverUrl(id), `${id}.jpg`);
+      fileSaver.saveAs(getCoverUrl(id), `${id}.jpg`);
     });
   }
 });})();

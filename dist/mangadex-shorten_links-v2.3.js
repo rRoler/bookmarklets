@@ -1,13 +1,14 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-shorten_links.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-shorten_links-v2.3.dependencies.txt
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
   if (!new RegExp(websiteRegex).test(window.location.hostname)) return alert('Bookmarklet executed on the wrong website!');
   code();
 }
-function getMatch(string, regex, index = 0) {
+function getMatch(string, regex) {
+  let index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   const regexMatches = string.match(regex);
   if (regexMatches && regexMatches[index]) return regexMatches[index];
 }
@@ -17,7 +18,8 @@ const pageInfo = {
   isDraft: /draft=true/.test(window.location.search)
 };
 
-const newBookmarklet = (code, settings = {}) => {
+const newBookmarklet = function (code) {
+  let settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   newBookmarklet$1('^mangadex.org|canary.mangadex.dev', () => {
     const isCreatePage = settings.createPage && /\/create\//.test(window.location.pathname);
     const noticePart = 'You can execute this bookmarklet only on ';
@@ -29,12 +31,9 @@ const newBookmarklet = (code, settings = {}) => {
 
 newBookmarklet(() => {
   const inputs = [];
-  const getLinks = divIndex => {
-    var _document$querySelect;
-    return (_document$querySelect = document.querySelectorAll('div.input-container')[divIndex]) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.querySelectorAll('input.inline-input').forEach(input => {
-      inputs.push(input);
-    });
-  };
+  const getLinks = divIndex => document.querySelectorAll('div.input-container')[divIndex]?.querySelectorAll('input.inline-input').forEach(input => {
+    inputs.push(input);
+  });
   getLinks(3);
   getLinks(4);
   getLinks(5);
