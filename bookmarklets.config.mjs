@@ -5,7 +5,7 @@ const bookmarklets = {
 		url: 'https://mangadex.org',
 		bookmarklets: {
 			show_cover_data: {
-				version: '3.5',
+				version: '3.6',
 				name: 'Show Cover Data',
 				description:
 					'Display cover information.' +

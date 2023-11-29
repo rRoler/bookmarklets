@@ -65,7 +65,10 @@ mangadex.newBookmarklet(() => {
 
 	coverFileNames.forEach((fileNames, mangaId) => {
 		const skippedCoversSize = skippedCoverFileNames.get(mangaId)?.size || 0;
-		if (fileNames.size + skippedCoversSize > 1 || mangadex.api.pageInfo.titleId)
+		if (
+			fileNames.size + skippedCoversSize > 1 ||
+			mangadex.api.pageInfo.titleId === mangaId
+		)
 			mangaIdsForQuery.cover.push(mangaId);
 		else mangaIdsForQuery.manga.push(mangaId);
 	});
@@ -259,7 +262,7 @@ mangadex.newBookmarklet(() => {
 
 		const informationShowElementText = document.createElement('span');
 		informationShowElementText.innerText = information.size;
-		utils.setStyle(informationShowElementText, { 'padding-top': '1px' });
+		utils.setStyle(informationShowElementText, { 'padding-top': '0.25px' });
 		informationShowElementContent.append(informationShowElementText);
 
 		const informationElement = document.createElement('span');
@@ -323,6 +326,9 @@ mangadex.newBookmarklet(() => {
 				color: roleColor,
 				border: `1px solid ${roleColor}`,
 				'background-color': roleColor.replace(')', ',0.1)'),
+				overflow: 'hidden',
+				'text-overflow': 'ellipsis',
+				'white-space': 'nowrap',
 			});
 			informationItemElements.user.addEventListener('click', (event) => {
 				event.stopPropagation();

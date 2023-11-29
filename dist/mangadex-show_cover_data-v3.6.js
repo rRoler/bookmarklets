@@ -1,6 +1,6 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-show_cover_data-v3.5.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-show_cover_data-v3.6.dependencies.txt
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
@@ -302,7 +302,7 @@ newBookmarklet(() => {
   progressBar.add();
   coverFileNames.forEach((fileNames, mangaId) => {
     const skippedCoversSize = skippedCoverFileNames.get(mangaId)?.size || 0;
-    if (fileNames.size + skippedCoversSize > 1 || pageInfo.titleId) mangaIdsForQuery.cover.push(mangaId);else mangaIdsForQuery.manga.push(mangaId);
+    if (fileNames.size + skippedCoversSize > 1 || pageInfo.titleId === mangaId) mangaIdsForQuery.cover.push(mangaId);else mangaIdsForQuery.manga.push(mangaId);
   });
   getAllCoverData().then(covers => {
     let addedCoverData = 0;
@@ -430,7 +430,7 @@ newBookmarklet(() => {
     const informationShowElementText = document.createElement('span');
     informationShowElementText.innerText = information.size;
     setStyle(informationShowElementText, {
-      'padding-top': '1px'
+      'padding-top': '0.25px'
     });
     informationShowElementContent.append(informationShowElementText);
     const informationElement = document.createElement('span');
@@ -483,7 +483,10 @@ newBookmarklet(() => {
         width: '100%',
         color: roleColor,
         border: `1px solid ${roleColor}`,
-        'background-color': roleColor.replace(')', ',0.1)')
+        'background-color': roleColor.replace(')', ',0.1)'),
+        overflow: 'hidden',
+        'text-overflow': 'ellipsis',
+        'white-space': 'nowrap'
       });
       informationItemElements.user.addEventListener('click', event => {
         event.stopPropagation();
