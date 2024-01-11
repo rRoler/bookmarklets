@@ -16,7 +16,7 @@ const bookmarklets = {
 					'<br>Hold shift while clicking the "Copy Cover ID" element to copy the IDs of all covers.',
 			},
 			add_cover_descriptions: {
-				version: '2.2',
+				version: '2.3',
 				name: 'Add Cover Descriptions',
 				description:
 					'Requires the title edit and cover edit permissions. Adds cover descriptions to all newly added covers with no description on the title edit page.' +

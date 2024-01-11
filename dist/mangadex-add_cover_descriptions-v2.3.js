@@ -1,6 +1,6 @@
 /*!
  * Licensed under MIT: https://github.com/rRoler/bookmarklets/raw/main/LICENSE
- * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-add_cover_descriptions-v2.2.dependencies.txt
+ * Third party licenses: https://github.com/rRoler/bookmarklets/raw/main/dist/mangadex-add_cover_descriptions-v2.3.dependencies.txt
  */
 
 (() => {function newBookmarklet$1(websiteRegex, code) {
@@ -89,8 +89,10 @@ newBookmarklet(async () => {
         const save = element?.parentElement?.parentElement?.parentElement?.parentElement?.querySelector('button.primary');
         if (!element.value) element.value = description;else changed = false;
         element?.dispatchEvent(new InputEvent('input'));
-        save?.dispatchEvent(new MouseEvent('click'));
-        waitForElement(selectors, true).then(() => resolve(changed));
+        setTimeout(() => {
+          save?.dispatchEvent(new MouseEvent('click'));
+          waitForElement(selectors, true).then(() => resolve(changed));
+        }, 2);
       });
     });
   }

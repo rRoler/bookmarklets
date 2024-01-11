@@ -73,8 +73,10 @@ mangadex.newBookmarklet(
 						(element as HTMLTextAreaElement).value = description;
 					else changed = false;
 					element?.dispatchEvent(new InputEvent('input'));
-					save?.dispatchEvent(new MouseEvent('click'));
-					utils.waitForElement(selectors, true).then(() => resolve(changed));
+					setTimeout(() => {
+						save?.dispatchEvent(new MouseEvent('click'));
+						utils.waitForElement(selectors, true).then(() => resolve(changed));
+					}, 2);
 				});
 			});
 		}

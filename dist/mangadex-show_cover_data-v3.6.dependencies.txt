@@ -1,5 +1,5 @@
 Name: heroicons
-Version: 2.0.18
+Version: 2.1.1
 License: MIT
 Private: false
 License Copyright:
